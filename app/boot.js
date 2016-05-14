@@ -28,7 +28,6 @@ var User = require('./models/user');
 var NotificationView = require('./views/notification');
 var config = require('./config');
 var cookie = require('./cookie');
-var auth = require('./config');
 var status = require('./status');
 
 // Set up translations
