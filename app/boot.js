@@ -100,6 +100,11 @@ user.authenticate({
             });
 
             $('#prose').html(error.render().el);
+
+            console.error('Could not fetch user details\n' +
+                          'Possibly an Oauth error\n' +
+                          'Dumping cookies');
+            cookie.clear();
           });
         }
       });
@@ -121,5 +126,6 @@ user.authenticate({
 
     // Start responding to routes
     Backbone.history.start();
+
   }
 });
