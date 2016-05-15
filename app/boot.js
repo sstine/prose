@@ -103,6 +103,7 @@ user.authenticate({
 
             console.error('Could not fetch user details\n' +
                           'Possibly an Oauth error\n' +
+                          'Report issues at https://github.com/prose/prose/issues\n' +
                           'Dumping cookies');
             cookie.clear();
           });

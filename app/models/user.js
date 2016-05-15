@@ -20,8 +20,6 @@ module.exports = Backbone.Model.extend({
   initialize: function(attributes, options) {
     this.repos = new Repos([], { user: this });
     this.orgs = new Orgs([], { user: this });
-
-    // TODO remove this hardcoded assumption
     this.api = util.getApiFlavor();
   },
 
