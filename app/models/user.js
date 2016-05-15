@@ -7,11 +7,22 @@ var Orgs = require('../collections/orgs');
 var auth = require('../config');
 var cookie = require('../cookie');
 var templates = require('../../dist/templates');
+var util = require('../util');
 
 module.exports = Backbone.Model.extend({
+  defaults: {
+    login: '',
+    id: 0,
+    type: 'User', // User or Organization
+    avatar_url: ''
+  },
+
   initialize: function(attributes, options) {
     this.repos = new Repos([], { user: this });
     this.orgs = new Orgs([], { user: this });
+
+    // TODO remove this hardcoded assumption
+    this.api = util.getApiFlavor();
   },
 
   authenticate: function(options) {
@@ -39,17 +50,26 @@ module.exports = Backbone.Model.extend({
     }
   },
 
+  parse: function (resp) {
+    if (this.api === 'gitlab') {
+      return _.extend(resp, {
+        login: resp.username
+      });
+    } else {
+      return resp;
+    }
+  },
+
   url: function() {
     var id = cookie.get('id');
     var token = cookie.get('oauth-token');
-
-    var github = auth.api + ((token && _.isUndefined(id)) || (id && this.get('id') === id) ?
-      '/user' : '/users/' + this.get('login'));
-
-    var gitlab = auth.api + '/user?access_token=' + token;
-
-    // Return '/user' if authenticated but no user id cookie has been set yet
-    // or if this model's id matches authenticated user id
-    return gitlab;
+    if (this.api === 'gitlab') {
+      return auth.api + '/user?access_token=' + token;
+    } else {
+      // Return '/user' if authenticated but no user id cookie has been set yet
+      // or if this model's id matches authenticated user id
+      return auth.api + ((token && _.isUndefined(id)) || (id && this.get('id') === id) ?
+        '/user' : '/users/' + this.get('login'));
+    }
   }
 });

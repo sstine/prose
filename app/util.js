@@ -2,6 +2,7 @@ var $ = require('jquery-browserify');
 var _ = require('underscore');
 var templates = require('../dist/templates');
 var chrono = require('chrono');
+var auth = require('./config');
 
 module.exports = {
 
@@ -296,5 +297,10 @@ module.exports = {
     } catch (err) {
         return t('notification.error.github');
     }
+  },
+
+  getApiFlavor: function (apiUrl) {
+    apiUrl = apiUrl || auth.api;
+    return /gitlab/.test(apiUrl) ? 'gitlab' : 'github';
   }
 };
