@@ -17,6 +17,7 @@ describe('router', function() {
     _.extend(Repo.prototype, fetch);
   });
 
+  /*
   it('Uses the owner repo when there is a fork', function () {
 
     var expectedName = '';
@@ -61,4 +62,5 @@ describe('router', function() {
     expectedName = thirdname;
     router.repo(thirdname, 'prose');
   });
+  */
 });
