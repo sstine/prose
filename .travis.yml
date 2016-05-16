@@ -3,7 +3,7 @@ node_js:
 - '4.2'
 env:
   global:
-  - GH_REF=github.com/prose/prose.git
+  - GH_REF=github.com/dereklieu/prose.git
   - CXX=g++-4.8
   - DEPLOY_BRANCH=master
   - secure: QsXFk/jesOEsNR0GUIwEgJBexAVeCdAFIMwdgbZajz9x6NI62kmJnnWDrLrLP2gB+ie8QAfHOMER0g+OWjDr4uQWeN8RjEEzGKSDkxWDaIAUXxeXHLCBIuXL0I6U2KnfYE4GXxn1CmK89QeI9Mi2OGVAbPFx4zXOm/tmjoFlCPJj8yXF+1+LpGCUxbG1G0G8uyFMMUoBQn4XgomicIt8s6Bqm5peeLPRtQXTm0R0dic4irIam+5q8UajzB9il+9Os3QruNwB6OUFDZAKqhj0J0WQlNeLSCgSTiX8yGXiV8y2M7/rxIMUlZJV1Hd6qydZSPVEwcRRPUM1Lh/wDoCvlKsCpvn/kmxehlzrb98ISXm85TSnmMOcMjA2FptMXGlemJQ0oglqTotyctlhZcdelykHX3tc2uiGsaRpqAMpPnaHOe8emV56Atw2pVlWlXGSwg5+paeMQ0Bit9OHksOU3UjPkok2gjBSpDPD5brE3t4GM86M3qeO4NCGYfQi4t7LdPsevj4hsNmp5bJ9rVCmaBVK1ksIuI0AldFueUSj1V69gHQqV1rhRvZ1FzR0oepO8qc92hir24287LlyZzuyKe5QTkjX0NsVLIOKqu2MD1HVbZbBLuV0VZHJy4Yk0RVDtNv/G0Ur3Zd26FmCZnm5jSNkH4h6d7fQ6WqQ9DF4WLw=
