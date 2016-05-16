@@ -3,27 +3,58 @@ var Backbone = require('backbone');
 var Branches = require('../collections/branches');
 var Commits = require('../collections/commits');
 var config = require('../config');
+var util = require('../util');
 
 module.exports = Backbone.Model.extend({
   constructor: function(attributes, options) {
-    Backbone.Model.call(this, {
-      id: attributes.id,
-      description: attributes.description,
-      fork: attributes.fork,
-      homepage: attributes.homepage,
-      default_branch: attributes.default_branch,
-      name: attributes.name,
-      owner: {
-        id: attributes.owner.id,
-        login: attributes.owner.login
-      },
-      permissions: attributes.permissions,
-      private: attributes.private,
-      updated_at: attributes.updated_at
-    });
+    this.api = options && options.api ? options.api : util.getApiFlavor();
+    var attr = this.api === 'gitlab' ? this.pickGitlab(attributes) :
+      this.pickGithub(attributes);
+
+    Backbone.Model.call(this, attr);
   },
 
-  initialize: function(attributes, options) {
+  pickGitlab: function (attr) {
+    return {
+      id: attr.id,
+      description: attr.description,
+
+      // Gitlab API does not have a boolean value for whether the
+      // project is a fork; only how many forks the project has.
+      fork: false,
+      homepage: attr.web_url,
+      default_branch: attr.default_branch,
+      name: attr.name,
+      owner: {
+        id: attr.owner.id,
+        login: attr.owner.username
+      },
+      permissions: attr.permissions,
+      private: !attr.public,
+      updated_at: attr.last_activity_at
+    };
+  },
+
+  pickGithub: function (attr) {
+    return {
+      id: attr.id,
+      description: attr.description,
+      fork: attr.fork,
+      homepage: attr.homepage,
+      default_branch: attr.default_branch,
+      name: attr.name,
+      owner: {
+        id: attr.owner.id,
+        login: attr.owner.login
+      },
+      permissions: attr.permissions,
+      private: attr.private,
+      updated_at: attr.updated_at,
+      issue_count: attr.open_issues_count
+    };
+  },
+
+  initialize: function () {
     this.branches = new Branches([], { repo: this });
     this.commits = new Commits([], { repo: this, branch: this.branch })
   },
