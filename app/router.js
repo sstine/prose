@@ -401,6 +401,12 @@ module.exports = Backbone.Router.extend({
       });
     }
 
+    cookie.clear();
+    console.error('There was a problem retrieving data\n' +
+                  'You may need to re-authenticate\n' +
+                  'Report issues at https://github.com/prose/prose/issues\n' +
+                  'Dumping cookies');
+
     this.notify(message, error, options);
   }
 });
