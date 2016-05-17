@@ -29,7 +29,8 @@ module.exports = Backbone.View.extend({
     this.user = options.user;
     this.view = options.view;
 
-    this.commits.setBranch(this.branch, {
+    this.commits.setBranch(this.branch);
+    this.commits.fetch({
       success: this.render,
       error: (function(model, xhr, options) {
         this.router.error(xhr);

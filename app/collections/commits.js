@@ -9,9 +9,8 @@ module.exports = Backbone.Collection.extend({
     this.repo = options.repo;
   },
 
-  setBranch: function(branch, options) {
+  setBranch: function(branch) {
     this.branch = branch;
-    this.fetch(options);
   },
 
   parse: function(resp, options) {
