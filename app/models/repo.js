@@ -27,8 +27,8 @@ module.exports = Backbone.Model.extend({
       default_branch: attr.default_branch,
       name: attr.name,
       owner: {
-        id: attr.owner.id,
-        login: attr.owner.username
+        id: attr.owner ? attr.owner.id : attr.namespace ? attr.namespace.owner_id : '',
+        login: attr.owner ? attr.owner.username : attr.namespace ? attr.namespace.name : ''
       },
       permissions: attr.permissions,
       private: !attr.public,
