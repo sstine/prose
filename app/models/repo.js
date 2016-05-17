@@ -4,7 +4,6 @@ var Branches = require('../collections/branches');
 var Commits = require('../collections/commits');
 var config = require('../config');
 var util = require('../util');
-var cookie = require('../cookie');
 
 module.exports = Backbone.Model.extend({
   constructor: function(attributes, options) {
@@ -113,8 +112,7 @@ module.exports = Backbone.Model.extend({
 
   url: function() {
     if (this.api === 'gitlab') {
-      return config.api + '/projects/' + this.get('id') +
-        '?access_token=' + cookie.get('oauth-token');
+      return config.api + '/projects/' + this.get('id');
     } else {
       return config.api + '/repos/' + this.get('owner').login +
         '/' + this.get('name');

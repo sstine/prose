@@ -55,11 +55,8 @@ module.exports = Backbone.Collection.extend({
     var type = this.user.get('type');
 
     if (this.api === 'gitlab') {
-      var token = cookie.get('oauth-token');
       var scope = cookie.get('scope');
-      var query = {
-        access_token: token,
-      }
+      var query = {};
       if (scope === 'public_repo') {
         query.scope = 'public';
       }

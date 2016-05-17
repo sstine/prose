@@ -3,7 +3,6 @@ var Backbone = require('backbone');
 var Org = require('../models/org');
 var auth = require('../config');
 var util = require('../util');
-var cookie = require('../cookie');
 
 module.exports = Backbone.Collection.extend({
   model: Org,
@@ -26,7 +25,7 @@ module.exports = Backbone.Collection.extend({
 
   url: function() {
     if (this.api === 'gitlab') {
-      return auth.api + '/groups?access_token=' + cookie.get('oauth-token');
+      return auth.api + '/groups';
     }
     else {
       return this.user ? auth.api + '/users/' + this.user.get('login') + '/orgs' : '/user/orgs';

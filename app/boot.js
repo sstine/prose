@@ -29,6 +29,7 @@ var NotificationView = require('./views/notification');
 var config = require('./config');
 var cookie = require('./cookie');
 var status = require('./status');
+var util = require('./util');
 
 // Set up translations
 var setLanguage = (cookie.get('lang')) ? true : false;
@@ -48,14 +49,22 @@ var user = new User();
 user.authenticate({
   success: function() {
     if ('withCredentials' in new XMLHttpRequest()) {
+
       // Set OAuth header for all CORS requests
-      $.ajaxSetup({
-        headers: {
-          'Authorization': config.auth === 'oauth' ?
+      var headers;
+      if (util.getApiFlavor() === 'gitlab') {
+        headers = {
+          Authorization: "Bearer " + cookie.get('oauth-token')
+        };
+      }
+      else {
+        headers = {
+          Authorization: config.auth === 'oauth' ?
             'token ' + cookie.get('oauth-token') :
             'Basic ' + Base64.encode(config.username + ':' + config.password)
-        }
-      });
+        };
+      }
+      $.ajaxSetup({headers: headers});
 
       // Set an 'authenticated' class to #prose
       $('#prose').addClass('authenticated');

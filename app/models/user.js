@@ -62,7 +62,7 @@ module.exports = Backbone.Model.extend({
     var id = cookie.get('id');
     var token = cookie.get('oauth-token');
     if (this.api === 'gitlab') {
-      return auth.api + '/user?access_token=' + token;
+      return auth.api + '/user';
     } else {
       // Return '/user' if authenticated but no user id cookie has been set yet
       // or if this model's id matches authenticated user id
