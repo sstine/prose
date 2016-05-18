@@ -11,13 +11,23 @@ module.exports = Backbone.Collection.extend({
   },
 
   parse: function(resp, options) {
+    var gitlab = util.getApiFlavor() === 'gitlab';
+    var repo = this.repo;
     return _.map(resp, (function(branch) {
-     return  _.extend(branch, {
-        repo: this.repo
-      })
-    }).bind(this));
+      var commit = branch.commit;
+      if (!commit.sha) {
+        commit.sha = commit.id;
+      }
+      return {
+        repo: repo,
+        name: branch.name,
+        commit: commit,
+        'protected': gitlab ? branch['protected'] : branch.protection ? branch.protection.enabled : false
+      }
+    }));
   },
 
+  /*
   fetch: function(options) {
     options = _.clone(options) || {};
 
@@ -40,8 +50,9 @@ module.exports = Backbone.Collection.extend({
       }).bind(this)
     }));
   },
+  */
 
   url: function() {
-    return this.repo.url() + '/branches?per_page=100';
+    return this.repo.branchesUrl();
   }
 });

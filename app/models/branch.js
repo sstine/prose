@@ -3,6 +3,13 @@ var Files = require('../collections/files');
 var config = require('../config');
 
 module.exports = Backbone.Model.extend({
+
+  defaults: {
+    name: '',
+    commit: null,
+    'protected': null
+  },
+
   initialize: function(attributes, options) {
     this.repo = attributes.repo;
 
