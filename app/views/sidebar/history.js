@@ -45,7 +45,7 @@ module.exports = Backbone.View.extend({
     // Shallow flatten mapped array of all commit files
     var files = _.flatten(_.map(commits, function(commit) {
       return commit.get('files');
-    }), true);
+    }), true).filter(Boolean);
 
     /*
     // TODO: jail files to rooturl #541
