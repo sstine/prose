@@ -10,6 +10,8 @@ var cookie = require('../cookie');
 var util = require('../util');
 var ignore = require('ignore');
 
+var api = util.getApiFlavor();
+
 module.exports = Backbone.Collection.extend({
   model: function(attributes, options) {
     // TODO: handle 'symlink' and 'submodule' type
@@ -64,8 +66,10 @@ module.exports = Backbone.Collection.extend({
     };
   },
 
-  parse: function(resp, options) {
-    return _.map(resp.tree, (function(file) {
+  parse: function(resp) {
+    var gitlab = api === 'gitlab';
+    var iterable = gitlab ? resp : resp.tree;
+    return _.map(iterable, (function(file) {
       return  _.extend(file, {
         branch: this.branch,
         collection: this,
@@ -299,6 +303,6 @@ module.exports = Backbone.Collection.extend({
   },
 
   url: function() {
-    return this.repo.url() + '/git/trees/' + this.sha + '?recursive=1';
+    return this.repo.filesUrl(this.sha);
   }
 });
