@@ -14,6 +14,10 @@ module.exports = Backbone.Model.extend({
     Backbone.Model.call(this, attr);
   },
 
+  parse: function (res) {
+    return this.api === 'gitlab' ? this.pickGitlab(res) : this.pickGithub(res);
+  },
+
   pickGitlab: function (attr) {
     return {
       id: attr.id,
@@ -90,13 +94,11 @@ module.exports = Backbone.Model.extend({
         // TODO: Forking is async, retry if request fails
         repo.branches.fetch({
           success: (function(collection, res, options) {
-            collection = repo.branches;
             var prefix = 'prose-patch-';
-
-            var branches = collection.filter(function(model) {
-              return model.get('name').indexOf(prefix) === 0;
-            }).map(function(model) {
-              return parseInt(model.get('name').split(prefix)[1]);
+            var branches = repo.branches.filter(function(branch) {
+              return branch.get('name').indexOf(prefix) === 0;
+            }).map(function(branch) {
+              return parseInt(branch.get('name').split(prefix)[1]);
             });
 
             var branch = prefix + (branches.length ? _.max(branches) + 1 : 1);
@@ -112,10 +114,41 @@ module.exports = Backbone.Model.extend({
 
   url: function() {
     if (this.api === 'gitlab') {
-      return config.api + '/projects/' + this.get('id');
+      var id = this.id || this.get('owner').login + '%2F' + this.get('name');
+      return config.api + '/projects/' + id;
     } else {
       return config.api + '/repos/' + this.get('owner').login +
         '/' + this.get('name');
     }
+  },
+
+  // url for this repo's branches
+  branchesUrl: function () {
+    var suffix = this.api === 'gitlab' ?
+      '/repository/branches' :
+      '/branches?per_page=100';
+    return this.url() + suffix;
+  },
+
+  // url for this repo's commits
+  commitsUrl: function (branch) {
+    var suffix = this.api === 'gitlab' ?
+      '/repository/commits?ref_name=' + branch :
+      '/commits?sha=' + branch;
+    return this.url() + suffix;
+  },
+
+  commitUrl: function (sha) {
+    var suffix = this.api === 'gitlab' ?
+      '/repository/commits/' + sha :
+      '/commits/' + sha;
+    return this.url() + suffix;
+  },
+
+  filesUrl: function (sha) {
+    var suffix = this.api === 'gitlab' ?
+      '/repository/tree?ref_name=' + sha :
+      '/git/trees/' + sha + '?recursive=1';
+    return this.url() + suffix;
   }
 });
