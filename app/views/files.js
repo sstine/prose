@@ -50,16 +50,16 @@ module.exports = Backbone.View.extend({
 
   setModel: function() {
     this.app.loader.start();
-
-    this.model = this.branches.findWhere({ name: this.branch }).files;
-
-    this.model.fetch({
+    var files = this.branches.findWhere({ name: this.branch }).files;
+    this.model = files;
+    files.fetch({
       success: (function() {
         // Update this.path with rooturl
-        var config = this.model.config;
+        // TODO not sure if this is always undefined...
+        var config = files.config;
         this.rooturl = config && config.rooturl ? config.rooturl : '';
 
-        this.presentationModel = this.model.filteredModel || this.model;
+        this.presentationModel = files.filteredModel || files;
         this.search.model = this.presentationModel;
         // Render on fetch and on search
         this.listenTo(this.search, 'search', this.render);
