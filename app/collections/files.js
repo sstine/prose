@@ -73,7 +73,8 @@ module.exports = Backbone.Collection.extend({
       return  _.extend(file, {
         branch: this.branch,
         collection: this,
-        repo: this.repo
+        repo: this.repo,
+        path: file.path || file.name
       })
     }).bind(this));
   },
