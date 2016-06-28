@@ -301,6 +301,6 @@ module.exports = {
 
   getApiFlavor: function (apiUrl) {
     apiUrl = apiUrl || auth.api;
-    return /gitbub/.test(apiUrl) ? 'github' : 'gitlab';
+    return /github/.test(apiUrl) ? 'github' : 'gitlab';
   }
 };
