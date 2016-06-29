@@ -4,6 +4,7 @@ var Branches = require('../collections/branches');
 var Commits = require('../collections/commits');
 var config = require('../config');
 var util = require('../util');
+var url = require('url');
 
 module.exports = Backbone.Model.extend({
   constructor: function(attributes, options) {
@@ -184,5 +185,18 @@ module.exports = Backbone.Model.extend({
       '/repository/tree?ref_name=' + sha :
       '/git/trees/' + sha + '?recursive=1';
     return this.url() + suffix;
-  }
+  },
+
+  fileUrl: function (branch, path) {
+    var query = {
+      ref: branch
+    };
+    if (this.api === 'gitlab') {
+      query.file_path = path;
+    }
+    var suffix = this.api === 'gitlab' ?
+      '/repository/files' + url.format({query: query}) :
+      '/contents/' + path + url.format({query: query});
+    return this.url() + suffix;
+  },
 });
