@@ -18,7 +18,34 @@ module.exports = Backbone.Model.extend({
     return this.api === 'gitlab' ? this.pickGitlab(res) : this.pickGithub(res);
   },
 
+  gitlabPermissions: function (permissions) {
+    if (!permissions) return null;
+
+    // if both group or project exists, gitlab uses the higher access_level
+    // http://doc.gitlab.com/ce/permissions/permissions.html
+    var group = permissions.group_access;
+    var project = permissions.project_access;
+    var access = 0
+    var k = 'access_level'
+    if (group && project) {
+      access = group[k] > project[k] ? group[k] : project[k]
+    }
+    else if (group) {
+      access = group[k]
+    }
+    else if (project) {
+      access = project[k]
+    }
+    access = parseInt(access, 0)
+    return {
+      admin: access === 50,
+      pull: access > 0,
+      push: access > 10
+    }
+  },
+
   pickGitlab: function (attr) {
+    var permissions = this.gitlabPermissions(attr.permissions);
     return {
       id: attr.id,
       description: attr.description,
@@ -33,12 +60,13 @@ module.exports = Backbone.Model.extend({
         id: attr.owner ? attr.owner.id : attr.namespace ? attr.namespace.owner_id : '',
         login: attr.owner ? attr.owner.username : attr.namespace ? attr.namespace.name : ''
       },
-      permissions: attr.permissions,
+      permissions: permissions,
       private: !attr.public,
       updated_at: attr.last_activity_at
     };
   },
 
+  // https://developer.github.com/v3/repos/#get
   pickGithub: function (attr) {
     return {
       id: attr.id,
@@ -51,6 +79,12 @@ module.exports = Backbone.Model.extend({
         id: attr.owner.id,
         login: attr.owner.login
       },
+      /**
+       * permissions: object
+       *  @admin: bool
+       *  @push: bool
+       *  @pull: bool
+       **/
       permissions: attr.permissions,
       private: attr.private,
       updated_at: attr.updated_at,
