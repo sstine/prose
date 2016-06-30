@@ -57,22 +57,22 @@ module.exports = Backbone.Model.extend({
     }
 
     this.set({
-      'binary': util.isBinary(path),
-      'content': this.isNew() && _.isUndefined(attributes.content) ? t('main.new.body') : attributes.content,
-      'content_url': attributes.url,
-      'draft': function() {
+      binary: util.isBinary(path),
+      content: this.isNew() && _.isUndefined(attributes.content) ? t('main.new.body') : attributes.content,
+      content_url: attributes.url,
+      draft: function() {
         var path = this.get('path');
         return util.draft(path);
       },
-      'extension': extension,
-      'lang': util.mode(extension),
-      'media': util.isMedia(extension),
-      'markdown': util.isMarkdown(extension),
-      'name': util.extractFilename(path)[1],
-      'oldpath': path,
-      'path': path,
-      'type': type,
-      'writable': permissions ? permissions.push : false
+      extension: extension,
+      lang: util.mode(extension),
+      media: util.isMedia(extension),
+      markdown: util.isMarkdown(extension),
+      name: util.extractFilename(path)[1],
+      oldpath: path,
+      path: path,
+      type: type,
+      writable: permissions ? permissions.push : false
     });
   },
 
