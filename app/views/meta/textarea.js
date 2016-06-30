@@ -1,3 +1,4 @@
+var CodeMirror = require('codemirror');
 var $ = require('jquery-browserify');
 var Backbone = require('backbone');
 var _ = require('underscore');
@@ -69,7 +70,8 @@ module.exports = Backbone.View.extend({
 
   getValue: function() {
     try {
-      return jsyaml.safeLoad(this.codeMirror.getValue());
+      var value = jsyaml.safeLoad(this.codeMirror.getValue());
+      return (value || value === 0) ? value : '';
     }
     catch(err) {
       console.log('Error parsing yaml front matter for ', this.name);
@@ -81,7 +83,7 @@ module.exports = Backbone.View.extend({
   setValue: function(value) {
     // Only set value if not null or undefined.
     if (value != undefined) {
-      this.codeMirror.setValue(_.escape(value));
+      this.codeMirror.setValue(value);
     }
   }
 });

@@ -212,6 +212,29 @@ describe('Metadata editor view', function() {
       expect(metadataEditor.model.get('metadata').published).to.equal(true);
     });
 
+    it('does not crap out on hidden metadata with no defaults', function() {
+      model.set('defaults', [{
+        name: 'layout',
+        field: {
+          element: 'hidden'
+        }
+      }]);
+      metadataEditor.render();
+      var values = metadataEditor.getValue();
+      expect(values.hasOwnProperty('layout')).not.ok;
+    });
+
+    it('does not remove title and published meta properties, even if they are unset', function () {
+      model.set('metadata', {
+        title: '',
+        published: ''
+      });
+      metadataEditor.render();
+      var values = metadataEditor.getValue();
+      expect(values.hasOwnProperty('title')).ok;
+      expect(values.hasOwnProperty('published')).ok;
+    });
+
     it('textarea names do not collide with view methods', function() {
       var view = metadataEditor.view;
       model.set('defaults', [{
@@ -224,7 +247,6 @@ describe('Metadata editor view', function() {
       expect(metadataEditor.view).to.deep.equal(view);
     });
   });
-
 
   describe('testing user input from form elements', function() {
     // Although there are separate tests for getting values from each meta element individually,
@@ -516,6 +538,84 @@ describe('Metadata editor view', function() {
       metadataEditor.render();
       expect($('#meta').find('select').find('option').length).to.equal(2);
       expect(model.get('metadata').multiselect).to.deep.equal(['foo', 'bar']);
+    });
+
+    it('removes meta values that are empty strings from text fields', function () {
+      model.set('defaults', [{
+        name: 'false',
+        field: {
+          element: 'text',
+          value: 'false'
+        }
+      }, {
+        name: 'null',
+        field: {
+          element: 'text',
+          value: 'null'
+        }
+      }, {
+        name: 'numerical zero',
+        field: {
+          element: 'text',
+          value: 0
+        }
+      }, {
+        name: 'empty string',
+        field: {
+          element: 'text',
+          value: ''
+        }
+      }]);
+      metadataEditor.render();
+      expect(model.get('metadata').hasOwnProperty('false')).ok;
+      expect(model.get('metadata').hasOwnProperty('null')).ok;
+      expect(model.get('metadata').hasOwnProperty('numerical zero')).ok;
+      expect(model.get('metadata').hasOwnProperty('empty string')).not.ok;
+    });
+
+    it('removes meta values that are empty strings from textarea fields', function () {
+      model.set('defaults', [{
+        name: 'false',
+        field: {
+          element: 'textarea',
+          value: 'false'
+        }
+      }, {
+        name: 'null',
+        field: {
+          element: 'textarea',
+          value: 'null'
+        }
+      }, {
+        name: 'numerical zero',
+        field: {
+          element: 'textarea',
+          value: 0
+        }
+      }, {
+        name: 'empty string',
+        field: {
+          element: 'textarea',
+          value: ''
+        }
+      }]);
+      metadataEditor.render();
+      // textareas behave differently, parsing is done by codemirror
+      // and jsyaml, so we have less control over the outcome.
+      expect(model.get('metadata').hasOwnProperty('false')).not.ok;
+      expect(model.get('metadata').hasOwnProperty('null')).not.ok;
+      expect(model.get('metadata').hasOwnProperty('numerical zero')).ok;
+      expect(model.get('metadata').hasOwnProperty('empty string')).not.ok;
+    });
+
+    it('removes empty string values that are not defaults', function () {
+      model.set('metadata', {
+        notExist: '',
+        shouldExist: false
+      });
+      metadataEditor.render();
+      expect(model.get('metadata').hasOwnProperty('shouldExist')).ok;
+      expect(model.get('metadata').hasOwnProperty('notExist')).not.ok;
     });
   });
 });

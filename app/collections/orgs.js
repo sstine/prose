@@ -1,20 +1,34 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var Org = require('../models/org');
-var config = require('../config');
+var auth = require('../config');
+var util = require('../util');
 
 module.exports = Backbone.Collection.extend({
   model: Org,
 
   initialize: function(models, options) {
     options = _.clone(options) || {};
-    _.bindAll(this);
-
     this.user = options.user;
+    this.api = util.getApiFlavor();
+    _.bindAll(this);
+  },
+
+  parse: function (res) {
+    if (this.api === 'gitlab') {
+      res.forEach(function (org) {
+        org.login = org.path;
+      });
+    }
+    return res;
   },
 
   url: function() {
-    return this.user ? config.api + '/users/' + this.user.get('login') + '/orgs' :
-      '/user/orgs';
+    if (this.api === 'gitlab') {
+      return auth.api + '/groups';
+    }
+    else {
+      return this.user ? auth.api + '/users/' + this.user.get('login') + '/orgs' : '/user/orgs';
+    }
   }
 });

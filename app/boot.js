@@ -1,6 +1,16 @@
 var LOCALES = require('../translations/locales');
 var en = require('../dist/en.js');
 
+require('codemirror/mode/clike/clike');
+require('codemirror/mode/css/css');
+require('codemirror/mode/gfm/gfm');
+require('codemirror/mode/htmlmixed/htmlmixed');
+require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/markdown/markdown');
+require('codemirror/mode/ruby/ruby');
+require('codemirror/mode/xml/xml');
+require('codemirror/mode/yaml/yaml');
+
 // Set locale as global variable
 window.locale.en = en;
 window.locale.current('en');
@@ -18,8 +28,8 @@ var User = require('./models/user');
 var NotificationView = require('./views/notification');
 var config = require('./config');
 var cookie = require('./cookie');
-var auth = require('./config');
 var status = require('./status');
+var util = require('./util');
 
 // Set up translations
 var setLanguage = (cookie.get('lang')) ? true : false;
@@ -39,14 +49,22 @@ var user = new User();
 user.authenticate({
   success: function() {
     if ('withCredentials' in new XMLHttpRequest()) {
+
       // Set OAuth header for all CORS requests
-      $.ajaxSetup({
-        headers: {
-          'Authorization': config.auth === 'oauth' ?
+      var headers;
+      if (util.getApiFlavor() === 'gitlab') {
+        headers = {
+          Authorization: "Bearer " + cookie.get('oauth-token')
+        };
+      }
+      else {
+        headers = {
+          Authorization: config.auth === 'oauth' ?
             'token ' + cookie.get('oauth-token') :
             'Basic ' + Base64.encode(config.username + ':' + config.password)
-        }
-      });
+        };
+      }
+      $.ajaxSetup({headers: headers});
 
       // Set an 'authenticated' class to #prose
       $('#prose').addClass('authenticated');
@@ -91,6 +109,12 @@ user.authenticate({
             });
 
             $('#prose').html(error.render().el);
+
+            console.error('Could not fetch user details\n' +
+                          'Possibly an Oauth error\n' +
+                          'Report issues at https://github.com/prose/prose/issues\n' +
+                          'Dumping cookies');
+            cookie.clear();
           });
         }
       });
@@ -112,5 +136,6 @@ user.authenticate({
 
     // Start responding to routes
     Backbone.history.start();
+
   }
 });

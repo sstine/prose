@@ -4,18 +4,23 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 var Repos = require('../collections/repos');
 var Orgs = require('../collections/orgs');
-
-// TODO Pass Notification view here if something goes wrong?
-var NotificationView = require('../views/notification');
-
 var auth = require('../config');
 var cookie = require('../cookie');
 var templates = require('../../dist/templates');
+var util = require('../util');
 
 module.exports = Backbone.Model.extend({
+  defaults: {
+    login: '',
+    id: 0,
+    type: 'User', // User or Organization
+    avatar_url: ''
+  },
+
   initialize: function(attributes, options) {
     this.repos = new Repos([], { user: this });
     this.orgs = new Orgs([], { user: this });
+    this.api = util.getApiFlavor();
   },
 
   authenticate: function(options) {
@@ -27,7 +32,7 @@ module.exports = Backbone.Model.extend({
       match = window.location.href.match(/\?code=([a-z0-9]*)/);
 
       if (match) {
-        var ajax = $.ajax(auth.url + '/authenticate/' + match[1], {
+        $.ajax(auth.url + '/authenticate/' + match[1], {
           success: function(data) {
             cookie.set('oauth-token', data.token);
 
@@ -43,13 +48,26 @@ module.exports = Backbone.Model.extend({
     }
   },
 
+  parse: function (resp) {
+    if (this.api === 'gitlab') {
+      return _.extend(resp, {
+        login: resp.username
+      });
+    } else {
+      return resp;
+    }
+  },
+
   url: function() {
     var id = cookie.get('id');
     var token = cookie.get('oauth-token');
-
-    // Return '/user' if authenticated but no user id cookie has been set yet
-    // or if this model's id matches authenticated user id
-    return auth.api + ((token && _.isUndefined(id)) || (id && this.get('id') === id) ?
-      '/user' : '/users/' + this.get('login'));
+    if (this.api === 'gitlab') {
+      return auth.api + '/user';
+    } else {
+      // Return '/user' if authenticated but no user id cookie has been set yet
+      // or if this model's id matches authenticated user id
+      return auth.api + ((token && _.isUndefined(id)) || (id && this.get('id') === id) ?
+        '/user' : '/users/' + this.get('login'));
+    }
   }
 });

@@ -8,6 +8,18 @@ var FolderView = require('./li/folder');
 var templates = require('../../dist/templates');
 var util = require('.././util');
 
+function validatePath (path) {
+  if (!path) {
+    return '';
+  }
+  else if (path.slice(-1) === '/') {
+    return path;
+  }
+  else {
+    return path + '/';
+  }
+}
+
 module.exports = Backbone.View.extend({
   className: 'listings',
 
@@ -50,16 +62,16 @@ module.exports = Backbone.View.extend({
 
   setModel: function() {
     this.app.loader.start();
-
-    this.model = this.branches.findWhere({ name: this.branch }).files;
-
-    this.model.fetch({
+    var files = this.branches.findWhere({ name: this.branch }).files;
+    this.model = files;
+    files.fetch({
       success: (function() {
         // Update this.path with rooturl
-        var config = this.model.config;
+        // TODO not sure if this is always undefined...
+        var config = files.config;
         this.rooturl = config && config.rooturl ? config.rooturl : '';
 
-        this.presentationModel = this.model.filteredModel || this.model;
+        this.presentationModel = files.filteredModel || files;
         this.search.model = this.presentationModel;
         // Render on fetch and on search
         this.listenTo(this.search, 'search', this.render);
@@ -89,8 +101,8 @@ module.exports = Backbone.View.extend({
     this.app.loader.start();
 
     var search = this.search && this.search.input && this.search.input.val();
-    var rooturl = this.rooturl ? this.rooturl + '/' : '';
-    var path = this.path ? this.path + '/' : '';
+    var rooturl = validatePath(this.rooturl);
+    var path = validatePath(this.path);
     var drafts;
 
     var url = [
@@ -130,38 +142,24 @@ module.exports = Backbone.View.extend({
     }).bind(this));
 
     var frag = document.createDocumentFragment();
-
-    collection.each((function(file, index) {
-      var view;
-
-      if (file instanceof File) {
-        view = new FileView({
-          branch: this.branch,
-          history: this.history,
-          index: index,
-          model: file,
-          repo: this.repo,
-          router: this.router
-        });
-      } else if (file instanceof Folder) {
-        view = new FolderView({
-          branch: this.branch,
-          history: this.history,
-          index: index,
-          model: file,
-          repo: this.repo,
-          router: this.router
-        });
-      }
-
+    var opts = {
+      branch: this.branch,
+      history: this.history,
+      repo: this.repo,
+      router: this.router
+    };
+    var subviews = this.subviews;
+    collection.each(function(file, index) {
+      var _opts = _.extend({}, opts, {
+        index: index,
+        model: file
+      });
+      var view = file instanceof File ? new FileView(_opts) : new FolderView(_opts);
       frag.appendChild(view.render().el);
-      this.subviews[file.id] = view;
-    }).bind(this));
-
+      subviews[file.id] = view;
+    });
     this.$el.find('ul').html(frag);
-
     this.app.loader.done();
-
     return this;
   },
 
