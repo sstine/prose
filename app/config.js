@@ -4,8 +4,8 @@ var oauth = require('../oauth.json');
 module.exports = {
   api: process.env.API_URL || oauth.api || 'https://api.github.com',
   apiStatus: process.env.API_STATUS_URL || oauth.status || 'https://status.github.com/api/status.json',
-  site: process.env.SITE_URL || oauth.site || 'https://github.com',
-  id: process.env.CLIENT_ID || oauth.clientId,
+  site: process.env.OAUTH_URL || oauth.site || 'https://github.com',
+  id: process.env.OAUTH_CLIENT_ID || oauth.clientId,
   url: process.env.GATEKEEPER_URL || oauth.gatekeeperUrl,
   username: cookie.get('username'),
   auth: 'oauth',
