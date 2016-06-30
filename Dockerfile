@@ -12,7 +12,5 @@ RUN npm install
 # Bundle app source
 COPY . /usr/src/app
 
-RUN mkdir -p dist && node_modules/.bin/gulp production
-
 EXPOSE 3000
-CMD [ "node_modules/.bin/serve", "-D", "--compress", "-f", "img/favicon.ico" ]
+CMD [ "sh", "-c", "node_modules/.bin/gulp production && node_modules/.bin/serve -D -C --compress -f img/favicon.ico" ]
