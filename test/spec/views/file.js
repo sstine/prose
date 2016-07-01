@@ -88,7 +88,7 @@ describe('File view', function() {
       // quash an error requiring templates in an un-related view.
       fileView.renderMetadata = function() {};
       fileView.render();
-      expect(fileView.subviews.header.options.placeholder).to.equal(true);
+      expect(fileView.subviews.header.placeholder).to.equal(true);
     });
 
     describe('#defaultUploadPath', function() {
@@ -120,7 +120,7 @@ describe('File view', function() {
         fileView.renderMetadata = function() {};
         fileView.post();
         window.setTimeout(function() {
-          if (fileView.subviews.header.options.placeholder) {
+          if (fileView.subviews.header.placeholder) {
             done(new Error('Expected placeholder to be false'));
           }
           done();
@@ -140,7 +140,7 @@ describe('File view', function() {
         fileView.renderMetadata = function() {};
         fileView.draft();
         window.setTimeout(function() {
-          if (fileView.subviews.header.options.placeholder) {
+          if (fileView.subviews.header.placeholder) {
             done(new Error('Expected placeholder to be false'));
           }
           done();
@@ -152,7 +152,7 @@ describe('File view', function() {
   describe('in preview mode', function() {
     it('escapes script tags when compiling preview', function() {
       var content = "<script>alert('pwned')</script>";
-      expect(fileView.compilePreview(content)).to.equal('&lt;script&gt;alert(&#x27;pwned&#x27;)&lt;&#x2F;script&gt;');
+      expect(fileView.compilePreview(content)).to.equal('&lt;script&gt;alert(&#x27;pwned&#x27;)&lt;/script&gt;');
     });
   });
 
