@@ -57,9 +57,7 @@ module.exports = Backbone.View.extend({
       path: this.file.get('path')
     };
 
-    this.$el.html(this.template(settings, {
-      variable: 'settings'
-    }));
+    this.$el.html(this.template(settings));
 
     return this;
   }

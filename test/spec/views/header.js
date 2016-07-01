@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var HeaderView = require('../../../app/views/header');
 
 var MockFile = require('../../mocks/models/file');

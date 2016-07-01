@@ -1,4 +1,4 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var chosen = require('chosen-jquery-browserify');
 
