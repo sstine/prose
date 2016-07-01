@@ -1,7 +1,6 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../../../dist/templates');
+var templates = require('../../../../templates');
 var util = require('../../../util');
 
 module.exports = Backbone.View.extend({
@@ -45,7 +44,7 @@ module.exports = Backbone.View.extend({
       ': ' + file.filename;
 
     this.$el.attr('title', title)
-      .html(_.template(this.template, data, { variable: 'data' }));
+      .html(this.template(data, { variable: 'data' }));
 
     return this;
   },
@@ -70,9 +69,7 @@ module.exports = Backbone.View.extend({
   state: function(state) {
     // TODO: Set data-state attribute to toggle icon in CSS?
     // this.$el.attr('data-state', state);
-
-    var $icon = this.$el.find('.ico');
-    $icon.removeClass('added modified renamed removed saving checkmark error')
+    this.$el.find('.ico').removeClass('added modified renamed removed saving checkmark error')
       .addClass(state);
   },
 
@@ -88,9 +85,7 @@ module.exports = Backbone.View.extend({
         this.message(t('actions.restore.restored') + ': ' + path);
         this.state('checkmark');
 
-        this.$el
-          .attr('title', t('actions.restore.restored') + ': ' + this.file.filename);
-
+        this.$el.attr('title', t('actions.restore.restored') + ': ' + this.file.filename);
         this.$el.find('a').removeClass('removed');
 
         // Re-render Files view once collection has updated

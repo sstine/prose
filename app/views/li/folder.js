@@ -1,7 +1,6 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
   tagName: 'li',
@@ -34,9 +33,7 @@ module.exports = Backbone.View.extend({
 
     data.jailpath = jailpath ? jailpath[1] : data.path;
 
-    this.$el.empty().append(_.template(this.template, data, {
-      variable: 'folder'
-    }));
+    this.$el.empty().append(this.template(data));
 
     return this;
   }

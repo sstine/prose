@@ -1,7 +1,7 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var Backbone = require('backbone');
 var _ = require('underscore');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
 
@@ -9,6 +9,7 @@ module.exports = Backbone.View.extend({
   type: 'text',
 
   initialize: function(options) {
+    this.options = options;
     this.name = options.data.name;
   },
 
@@ -24,9 +25,7 @@ module.exports = Backbone.View.extend({
       type: data.type
     };
 
-    this.setElement($(_.template(this.template, text, {
-      variable: 'meta'
-    })));
+    this.setElement($(this.template(text)));
     this.$form = this.$el.find('input');
     return this.$el;
   },

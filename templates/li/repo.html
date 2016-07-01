@@ -1,17 +1,17 @@
 <a
   class='listing-icon'
-  data-user='<%- repo.owner.login %>'
-  data-repo='<%- repo.name %>'
-  href='#<%- repo.owner.login %>/<%- repo.name %>'>
-  <% if ((repo.owner.login !== repo.login) && repo.private) { %>
-    <span class='icon round repo owner private' title="<%- t('main.repos.sharedFrom') %> (<%- repo.owner.login %>)"></span>
-  <% } else if (repo.owner.login !== repo.login) { %>
-    <span class='icon round repo owner' title="<%- t('main.repos.sharedFrom') %> (<%- repo.owner.login %>)"></span>
-  <% } else if (repo.fork && repo.private) { %>
+  data-user='<%- data.owner.login %>'
+  data-repo='<%- data.name %>'
+  href='#<%- data.owner.login %>/<%- data.name %>'>
+  <% if ((data.owner.login !== data.login) && data.private) { %>
+    <span class='icon round repo owner private' title="<%- t('main.repos.sharedFrom') %> (<%- data.owner.login %>)"></span>
+  <% } else if (data.owner.login !== data.login) { %>
+    <span class='icon round repo owner' title="<%- t('main.repos.sharedFrom') %> (<%- data.owner.login %>)"></span>
+  <% } else if (data.fork && data.private) { %>
     <span class='icon round repo private fork' title="<%- t('main.repos.forkedFrom') %>"></span>
-  <% } else if (repo.fork) { %>
+  <% } else if (data.fork) { %>
     <span class='icon round repo fork' title="<%- t('main.repos.forkedFrom') %>"></span>
-  <% } else if (repo.private) { %>
+  <% } else if (data.private) { %>
     <span class='icon round repo private'></span>
   <% } else { %>
     <span class='icon round repo'></span>
@@ -21,20 +21,20 @@
 <div class='details'>
   <div class='actions fr clearfix'>
     <a
-      data-user='<%- repo.owner.login %>'
-      data-repo='<%- repo.name %>'
-      href='#<%- repo.owner.login %>/<%- repo.name %>'>
+      data-user='<%- data.owner.login %>'
+      data-repo='<%- data.name %>'
+      href='#<%- data.owner.login %>/<%- data.name %>'>
       <%= t('main.repos.repo') %>
     </a>
-    <% if (repo.homepage) { %>
-      <a href='<%- repo.homepage %>'><%= t('main.repos.site') %></a>
+    <% if (data.homepage) { %>
+      <a href='<%- data.homepage %>'><%= t('main.repos.site') %></a>
     <% } %>
   </div>
   <a
-    data-user='<%- repo.owner.login %>'
-    data-repo='<%- repo.name %>'
-    href='#<%- repo.owner.login %>/<%- repo.name %>'>
-    <h3<% if (!repo.description) { %> class='title'<% } %>><%- repo.name %></h3>
-    <span class='deemphasize'><%- repo.description %></span>
+    data-user='<%- data.owner.login %>'
+    data-repo='<%- data.name %>'
+    href='#<%- data.owner.login %>/<%- data.name %>'>
+    <h3<% if (!data.description) { %> class='title'<% } %>><%- data.name %></h3>
+    <span class='deemphasize'><%- data.description %></span>
   </a>
 </div>

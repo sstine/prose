@@ -1,11 +1,11 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var chosen = require('chosen-jquery-browserify');
 var _ = require('underscore');
 var util = require('../util');
 var Backbone = require('backbone');
 var toolbar = require('../toolbar/markdown.js');
 var upload = require('../upload');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   template: templates.toolbar,
@@ -66,7 +66,7 @@ module.exports = Backbone.View.extend({
       metadata: this.file.get('metadata')
     };
 
-    this.$el.html(_.template(this.template, toolbar, { variable: 'toolbar' }));
+    this.$el.html(this.template(toolbar, { variable: 'toolbar' }));
 
     return this;
   },
@@ -160,7 +160,7 @@ module.exports = Backbone.View.extend({
 
         switch(key) {
           case 'link':
-            tmpl = _(templates.dialogs.link).template();
+            tmpl = templates.dialogs.link;
 
             $dialog.append(tmpl({
               relativeLinks: self.relativeLinks
@@ -205,7 +205,7 @@ module.exports = Backbone.View.extend({
             }
           break;
           case 'media':
-            tmpl = _(templates.dialogs.media).template();
+            tmpl = templates.dialogs.media;
             $dialog.append(tmpl({
               description: t('dialogs.media.description', {
                 input: '<input id="upload" class="upload" type="file" />'
@@ -232,7 +232,7 @@ module.exports = Backbone.View.extend({
             }
           break;
           case 'help':
-            tmpl = _(templates.dialogs.help).template();
+            tmpl = templates.dialogs.help();
             $dialog.append(tmpl({
               help: toolbar().help
             }));
@@ -471,7 +471,7 @@ module.exports = Backbone.View.extend({
   renderMedia: function(data, back) {
     var self = this;
     var $media = this.$el.find('#media');
-    var tmpl = _(templates.dialogs.mediadirectory).template();
+    var tmpl = templates.dialogs.mediadirectory;
 
     // Reset some stuff
     $media.empty();

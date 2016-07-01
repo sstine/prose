@@ -1,7 +1,7 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var Backbone = require('backbone');
 var _ = require('underscore');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
 
@@ -9,6 +9,7 @@ module.exports = Backbone.View.extend({
   type: 'multiselect',
 
   initialize: function(options) {
+    this.options = options;
     this.name = options.data.name;
   },
 
@@ -26,9 +27,7 @@ module.exports = Backbone.View.extend({
       lang: data.lang
     };
 
-    this.setElement($(_.template(this.template, multiselect, {
-      variable: 'meta'
-    })));
+    this.setElement($(this.template(multiselect)));
     this.$form = this.$el.find('select');
     return this.$el;
   },

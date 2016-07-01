@@ -1,7 +1,7 @@
 <div class='form-item'>
-  <label for='<%= meta.name %>'><%= meta.label %></label>
-  <% if (meta.help) { %><small class='deemphasize'><%= meta.help %></small><% } %>
+  <label for='<%= data.name %>'><%= data.label %></label>
+  <% if (data.help) { %><small class='deemphasize'><%= data.help %></small><% } %>
   <fieldset>
-    <button class='metafield round <%= meta.name %>' type='button' name='<%= meta.name %>' value='<%= meta.value %>' data-on='<%= meta.on %>' data-off='<%= meta.off %>'><%= meta.on %></button>
+    <button class='metafield round <%= data.name %>' type='button' name='<%= data.name %>' value='<%= data.value %>' data-on='<%= data.on %>' data-off='<%= data.off %>'><%= data.on %></button>
   </fieldset>
 </div>

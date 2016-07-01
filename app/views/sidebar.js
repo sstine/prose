@@ -11,19 +11,15 @@ var views = {
   settings: require('./sidebar/settings')
 };
 
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   template: templates.drawer,
 
   subviews: {},
 
-  initialize: function(options) {
-    _.bindAll(this);
-  },
-
   render: function(options) {
-    this.$el.html(_.template(this.template, {}, { variable: 'sidebar' }));
+    this.$el.html(this.template({}));
     _.invoke(this.subviews, 'render');
     return this;
   },

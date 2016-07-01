@@ -1,16 +1,11 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   template: templates.loading,
 
   queue: 0,
-
-  initialize: function() {
-    _.bindAll(this);
-  },
 
   start: function(message) {
     this.queue++;
@@ -35,7 +30,7 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    this.$el.html(_.template(this.template, {}, { variable: 'data' }));
+    this.$el.html(this.template());
     return this;
   }
 });

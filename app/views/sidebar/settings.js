@@ -1,9 +1,9 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var NavView = require('../nav');
 var util = require('../../util');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
   template: templates.sidebar.settings,
@@ -57,7 +57,7 @@ module.exports = Backbone.View.extend({
       path: this.file.get('path')
     };
 
-    this.$el.html(_.template(this.template, settings, {
+    this.$el.html(this.template(settings, {
       variable: 'settings'
     }));
 

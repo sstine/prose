@@ -1,4 +1,3 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var CommitView = require('./li/commit');
@@ -6,7 +5,7 @@ var CommitView = require('./li/commit');
 var queue = require('queue-async');
 
 var cookie = require('../../cookie');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 var utils = require('../../util');
 
 module.exports = Backbone.View.extend({
@@ -15,8 +14,6 @@ module.exports = Backbone.View.extend({
   template: templates.sidebar.label,
 
   initialize: function(options) {
-    _.bindAll(this);
-
     var app = options.app;
     app.loader.start();
 
@@ -31,11 +28,13 @@ module.exports = Backbone.View.extend({
 
     this.commits.setBranch(this.branch);
     this.commits.fetch({
-      success: this.render,
+      success: this.render.bind(this),
       error: (function(model, xhr, options) {
         this.router.error(xhr);
       }).bind(this),
-      complete: this.app.loader.done
+      complete: function () {
+        app.loader.done();
+      }
     });
   },
 
@@ -88,9 +87,7 @@ module.exports = Backbone.View.extend({
 
         this.subviews[commit.sha] = view;
       }).bind(this));
-
-      var tmpl = _.template(this.template, label, { variable: 'label' });
-      this.$el.append(tmpl, frag);
+      this.$el.append(this.template(label, frag));
     }
 
     this.app.loader.done();

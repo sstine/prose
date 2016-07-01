@@ -1,7 +1,6 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var util = require('../util');
 
 module.exports = Backbone.View.extend({
@@ -14,20 +13,15 @@ module.exports = Backbone.View.extend({
   initialize: function(options) {
     this.mode = options.mode;
     this.model = options.model;
+    return this;
   },
 
   render: function() {
     var placeholder = t('main.repos.filter');
     if (this.mode === 'repo') placeholder = t('main.repo.filter');
-
-    var search = {
+    this.$el.empty().append(this.template({
       placeholder: placeholder
-    };
-
-    this.$el.empty().append(_.template(this.template, search, {
-      variable: 'search'
     }));
-
     this.input = this.$el.find('input');
     this.input.focus();
     return this;

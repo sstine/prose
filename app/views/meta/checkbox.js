@@ -1,7 +1,7 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var Backbone = require('backbone');
 var _ = require('underscore');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
 
@@ -9,6 +9,7 @@ module.exports = Backbone.View.extend({
   type: 'checkbox',
 
   initialize: function(options) {
+    this.options = options;
     this.name = options.data.name;
   },
 
@@ -22,9 +23,7 @@ module.exports = Backbone.View.extend({
       checked: data.field.value
     };
 
-    this.setElement($(_.template(this.template, checkbox, {
-      variable: 'meta'
-    })));
+    this.setElement($(this.template(checkbox)));
     this.$form = this.$el.find('input');
     return this.$el;
   },

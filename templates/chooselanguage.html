@@ -1,9 +1,9 @@
 <h1><%= t('chooselanguage.title') %></h1>
 <ul class='fat-list round'>
-  <% _(chooseLanguage.languages).each(function(l) { %>
+  <% _(data.languages).each(function(l) { %>
     <li>
-    <a href='#' data-code='<%= l.code %>' class='language<% if (l.code === chooseLanguage.active) { %> active<% } %>'>
-        <% if (l.code === chooseLanguage.active) { %><span class='ico checkmark fr'></span><% } %>
+    <a href='#' data-code='<%= l.code %>' class='language<% if (l.code === data.active) { %> active<% } %>'>
+        <% if (l.code === data.active) { %><span class='ico checkmark fr'></span><% } %>
         <%= l.name %>
         <small>(<%= l.code %>)</small>
       </a>

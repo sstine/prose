@@ -1,5 +1,5 @@
 var CodeMirror = require('codemirror');
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var queue = require('queue-async');
 var jsyaml = require('js-yaml');
@@ -19,7 +19,7 @@ var auth = require('../config');
 var util = require('../util');
 var upload = require('../upload');
 var cookie = require('../cookie');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   id: 'post',
@@ -29,8 +29,6 @@ module.exports = Backbone.View.extend({
   subviews: {},
 
   initialize: function(options) {
-    _.bindAll(this);
-
     var app = options.app;
     app.loader.start();
 
@@ -82,30 +80,24 @@ module.exports = Backbone.View.extend({
     }).bind(this);
 
     this.branches.fetch({
-      success: this.setCollection,
-      error: (function(model, xhr, options) {
-        this.router.error(xhr);
-      }).bind(this),
-      complete: app.loader.done
+      success: this.setCollection.bind(this),
+      error: function(model, xhr) {
+        options.router.error(xhr);
+      }
     });
   },
 
   setCollection: function() {
-    this.app.loader.start();
-
     this.collection = this.branches.findWhere({ name: this.branch }).files;
     this.collection.fetch({
-      success: this.setModel,
+      success: this.setModel.bind(this),
       error: (function(model, xhr, options) {
         this.router.error(xhr);
-      }).bind(this),
-      complete: this.app.loader.done,
-      args: arguments
+      }).bind(this)
     });
   },
 
   setModel: function() {
-    this.app.loader.start();
 
     // Set model either by calling directly for new File models
     // or by filtering collection for existing File models
@@ -578,9 +570,7 @@ module.exports = Backbone.View.extend({
         useCSVEditor: (['csv', 'tsv'].indexOf(this.model.get('lang')) !== -1 && !cookie.get('disableCSVEditor'))
       };
 
-      this.$el.empty().append(_.template(this.template, file, {
-        variable: 'file'
-      }));
+      this.$el.empty().append(this.template(file));
 
       // Store the configuration object from the collection
       this.config = this.model.get('collection').config;

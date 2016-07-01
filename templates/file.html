@@ -2,7 +2,7 @@
 <div id='modal'></div>
 
 <div id='post' class='post limiter'>
-  <div class='editor views<% if (file.markdown) { %> markdown<% } %>'>
+  <div class='editor views<% if (data.markdown) { %> markdown<% } %>'>
     <div id='diff' class='view prose diff'>
       <h2><%= t('main.file.metaTitle') %><br />
         <span class='deemphasize small'><%= t('main.file.metaDescription') %></span>
@@ -17,7 +17,7 @@
         </div>
       </div>
       <div id='drop' class='drop-mask'></div>
-      <% if (file.useCSVEditor) { %>
+      <% if (data.useCSVEditor) { %>
       <div id='csv-container'>
         <div id='csv'></div>
       </div>

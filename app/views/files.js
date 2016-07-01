@@ -1,11 +1,11 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var File = require('../models/file');
 var Folder = require('../models/folder');
 var FileView = require('./li/file');
 var FolderView = require('./li/folder');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var util = require('.././util');
 
 function validatePath (path) {
@@ -35,8 +35,6 @@ module.exports = Backbone.View.extend({
   },
 
   initialize: function(options) {
-    _.bindAll(this);
-
     var app = options.app;
     app.loader.start();
 
@@ -52,35 +50,38 @@ module.exports = Backbone.View.extend({
     this.sidebar = options.sidebar;
 
     this.branches.fetch({
-      success: this.setModel,
-      error: (function(model, xhr, options) {
-        this.router.error(xhr);
-      }).bind(this),
-      complete: this.app.loader.done
+      success: this.setCollection.bind(this),
+      error: function(model, xhr) {
+        options.router.error(xhr);
+      },
+      complete: function () {
+        app.loader.done();
+      }
     });
   },
 
-  setModel: function() {
-    this.app.loader.start();
+  setCollection: function() {
     var files = this.branches.findWhere({ name: this.branch }).files;
-    this.model = files;
+    var loader = this.app.loader;
+    loader.start();
+    this.collection = files;
+    this.listenToOnce(files, 'sync', function () {
+      // Update this.path with rooturl
+      // TODO not sure if this is always undefined...
+      var config = files.config;
+      this.rooturl = config && config.rooturl ? config.rooturl : '';
+      this.presentationModel = files.filteredModel || files;
+      this.search.model = this.presentationModel;
+      // Render on fetch and on search
+      this.listenTo(this.search, 'search', this.render);
+      this.render();
+    });
+    var router = this.router;
     files.fetch({
-      success: (function() {
-        // Update this.path with rooturl
-        // TODO not sure if this is always undefined...
-        var config = files.config;
-        this.rooturl = config && config.rooturl ? config.rooturl : '';
-
-        this.presentationModel = files.filteredModel || files;
-        this.search.model = this.presentationModel;
-        // Render on fetch and on search
-        this.listenTo(this.search, 'search', this.render);
-        this.render();
-      }).bind(this),
-      error: (function(model, xhr, options) {
-        this.router.error(xhr);
-      }).bind(this),
-      complete: this.app.loader.done,
+      error: function(model, xhr) { router.error(xhr); },
+      complete: function () {
+        loader.done();
+      },
       reset: true
     });
   },
@@ -134,7 +135,7 @@ module.exports = Backbone.View.extend({
       url: url
     };
 
-    this.$el.html(_.template(this.template, data, {variable: 'data'}));
+    this.$el.html(this.template(data));
 
     // if not searching, filter to only show current level
     var collection = search ? this.search.search() : this.presentationModel.filter((function(file) {

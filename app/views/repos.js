@@ -1,4 +1,4 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var RepoView = require('./li/repo');
@@ -12,12 +12,13 @@ module.exports = Backbone.View.extend({
   },
 
   initialize: function(options) {
-    _.bindAll(this);
-
     this.model = options.model;
     this.search = options.search;
+    this.listenTo(this.search, 'search', this.renderSearch);
+  },
 
-    this.listenTo(this.search, 'search', this.render);
+  renderSearch: function () {
+    this.render();
   },
 
   render: function() {

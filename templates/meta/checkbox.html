@@ -1,7 +1,7 @@
 <div class='form-item'>
   <fieldset>
-    <input class='metafield' type='checkbox' name='<%= meta.name %>' value='<%= meta.value %>'<% print(meta.checked ? 'checked' : '') %> />
-    <label class='aside' for='<%= meta.name %>'><%= meta.label %></label>
+    <input class='metafield' type='checkbox' name='<%= data.name %>' value='<%= data.value %>'<% print(data.checked ? 'checked' : '') %> />
+    <label class='aside' for='<%= data.name %>'><%= data.label %></label>
   </fieldset>
-  <% if (meta.help) { %><small class='deemphasize'><%= meta.help %></small><% } %>
+  <% if (data.help) { %><small class='deemphasize'><%= data.help %></small><% } %>
 </div>

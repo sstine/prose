@@ -1,8 +1,7 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var cookie = require('../../cookie');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 
 module.exports = Backbone.View.extend({
   tagName: 'li',
@@ -19,14 +18,9 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    var data = _.extend(this.model.attributes, {
+    this.$el.empty().append(this.template(_.extend({}, this.model.attributes, {
       login: cookie.get('login')
-    });
-
-    this.$el.empty().append(_.template(this.template, data, {
-      variable: 'repo'
-    }));
-
+    })));
     return this;
   }
 });

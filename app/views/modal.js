@@ -1,7 +1,6 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   className: 'modal overlay',
@@ -17,13 +16,9 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    var modal = {
+    this.$el.empty().append(templates.modal({
       message: this.message
-    };
-    this.$el.empty().append(_.template(templates.modal, modal, {
-      variable: 'modal'
     }));
-
     return this;
   },
 

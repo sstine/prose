@@ -1,8 +1,8 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var Backbone = require('backbone');
 var _ = require('underscore');
 var cookie = require('../cookie');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var LOCALES = require('../../translations/locales');
 
 module.exports = Backbone.View.extend({
@@ -11,17 +11,13 @@ module.exports = Backbone.View.extend({
   template: templates.chooselanguage,
 
   events: {
-    'click .language': 'setLanguage' 
+    'click .language': 'setLanguage'
   },
 
   render: function() {
-    var chooseLanguages = {
+    this.$el.empty().append(this.template({
       languages: LOCALES,
       active: app.locale ? app.locale : window.locale._current
-    };
-
-    this.$el.empty().append(_.template(this.template, chooseLanguages, {
-      variable: 'chooseLanguage'
     }));
     return this;
   },

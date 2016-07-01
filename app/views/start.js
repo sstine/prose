@@ -1,7 +1,7 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var auth = require('../config');
 var cookie = require('../cookie');
 
@@ -19,7 +19,7 @@ module.exports = Backbone.View.extend({
   template: templates.start,
 
   render: function() {
-    this.$el.html(_.template(this.template, auth, { variable: 'auth' }));
+    this.$el.html(this.template(auth));
     return this;
   },
 

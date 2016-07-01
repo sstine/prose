@@ -1,16 +1,16 @@
 <div class='form-item'>
-  <label for='<%= meta.name %>'><%= meta.label %></label>
-  <% if (meta.help) { %><small class='deemphasize'><%= meta.help %></small><% } %>
+  <label for='<%= data.name %>'><%= data.label %></label>
+  <% if (data.help) { %><small class='deemphasize'><%= data.help %></small><% } %>
 
   <fieldset>
-    <select name='<%= meta.name %>' data-placeholder='<%= meta.placeholder %>' class='metafield chzn-select'>
-      <% _(meta.options).each(function(o) { %>
+    <select name='<%= data.name %>' data-placeholder='<%= data.placeholder %>' class='metafield chzn-select'>
+      <% _(data.options).each(function(o) { %>
 
-        <% if (meta.placeholder) { %>
+        <% if (data.placeholder) { %>
           <option></option>
         <% } %>
 
-        <% if (!o.lang || o.lang === meta.lang) { %>
+        <% if (!o.lang || o.lang === data.lang) { %>
           <% if (o.name) { %>
            <option value='<%= o.value %>'><%= o.name %></option>
           <% } else if (o.value) { %>

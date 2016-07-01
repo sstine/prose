@@ -1,4 +1,3 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var queue = require('queue-async');
 var Backbone = require('backbone');
@@ -6,7 +5,7 @@ var FilesView = require('./files');
 var HeaderView = require('./header');
 var SearchView = require('./search');
 var util = require('.././util');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 
 module.exports = Backbone.View.extend({
   template: templates.repo,
@@ -18,8 +17,6 @@ module.exports = Backbone.View.extend({
   subviews: {},
 
   initialize: function(options) {
-    _.bindAll(this);
-
     var app = options.app;
     app.loader.start();
 
@@ -34,11 +31,11 @@ module.exports = Backbone.View.extend({
     // Init subviews
     this.initBranches();
     this.initHeader();
+    this.initSearch();
 
     var q = queue();
-    q.defer(this.initSearch);
-    q.defer(this.initHistory);
-    q.awaitAll(this.initFiles);
+    q.defer(this.initHistory.bind(this));
+    q.awaitAll(this.initFiles.bind(this));
 
     // Events from sidebar
     this.listenTo(this.sidebar, 'destroy', this.destroy);
@@ -49,12 +46,10 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    this.$el.html(_.template(this.template, {}, { variable: 'data' }));
-
+    this.$el.html(this.template());
     this.header.setElement(this.$el.find('#heading')).render();
     this.search.setElement(this.$el.find('#search')).render();
     this.files.setElement(this.$el.find('#files'));
-
     return this;
   },
 
@@ -67,14 +62,11 @@ module.exports = Backbone.View.extend({
     this.subviews['header'] = this.header;
   },
 
-  initSearch: function(cb) {
+  initSearch: function () {
     this.search = new SearchView({
       mode: 'repo'
     });
-
     this.subviews['search'] = this.search;
-
-    if (_.isFunction(cb)) cb.apply(this);
   },
 
   initFiles: function() {

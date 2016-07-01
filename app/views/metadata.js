@@ -1,11 +1,11 @@
 var CodeMirror = require('codemirror');
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var chosen = require('chosen-jquery-browserify');
 var _ = require('underscore');
 _.merge = require('deepmerge');
 var jsyaml = require('js-yaml');
 var Backbone = require('backbone');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var util = require('../util');
 
 var forms = {
@@ -43,8 +43,6 @@ module.exports = Backbone.View.extend({
   // titleAsHeading is true when the filetype is markdown,
   // and when there exists a meta field called title.
   initialize: function(options) {
-    _.bindAll(this);
-
     this.model = options.model;
     this.titleAsHeading = options.titleAsHeading;
     this.view = options.view;
@@ -57,7 +55,7 @@ module.exports = Backbone.View.extend({
   // after initializing this view.
   // This is responsible for rendering metadata fields for each *default*.
   render: function() {
-    this.$el.empty().append(_.template(this.template));
+    this.$el.empty().append(this.template({}));
 
     var $form = this.$el.find('.form');
 
@@ -212,7 +210,7 @@ module.exports = Backbone.View.extend({
       $parent.empty();
     }
     else {
-      this.$el.find('.form').append(_.template(templates.meta.raw));
+      this.$el.find('.form').append(templates.meta.raw());
       $parent = this.$el.find('#raw');
     }
 

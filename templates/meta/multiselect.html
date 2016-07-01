@@ -1,11 +1,11 @@
 <div class='form-item'>
-  <label for='<%= meta.name %>'><%= meta.label %></label>
-  <% if (meta.help) { %><small class='deemphasize'><%= meta.help %></small><% } %>
+  <label for='<%= data.name %>'><%= data.label %></label>
+  <% if (data.help) { %><small class='deemphasize'><%= data.help %></small><% } %>
 
   <fieldset>
-    <select id='<%= meta.name %>' name='<%= meta.name %>' data-placeholder='<%= meta.placeholder %>' multiple class='metafield chzn-select'>
-      <% _(meta.options).each(function(o) { %>
-        <% if (!o.lang || o.lang === meta.lang) { %>
+    <select id='<%= data.name %>' name='<%= data.name %>' data-placeholder='<%= data.placeholder %>' multiple class='metafield chzn-select'>
+      <% _(data.options).each(function(o) { %>
+        <% if (!o.lang || o.lang === data.lang) { %>
           <% if (o.name) { %>
            <option value='<%= o.value %>'><%= o.name %></option>
           <% } else if (o.value) { %>
@@ -18,10 +18,10 @@
     </select>
   </fieldset>
 
-  <% if (meta.alterable) { %>
+  <% if (data.alterable) { %>
     <div class='create'>
-      <input type='text' class='inline' data-select='<%= meta.name %>' />
-      <a href='#' class='round create-select inline button' data-select='<%= meta.name %>' title="<%= t('main.file.createMeta') %>"><%= t('main.file.createMeta') %></a>
+      <input type='text' class='inline' data-select='<%= data.name %>' />
+      <a href='#' class='round create-select inline button' data-select='<%= data.name %>' title="<%= t('main.file.createMeta') %>"><%= t('main.file.createMeta') %></a>
     </div>
   <% } %>
 </div>

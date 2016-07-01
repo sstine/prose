@@ -1,9 +1,9 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var config = require('../config');
 var utils = require('../util');
-var templates = require('../../dist/templates');
+var templates = require('../../templates');
 var cookie = require('../cookie');
 
 // Set scope
@@ -28,11 +28,11 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    this.$el.html(_.template(this.template, {
+    this.$el.html(this.template({
       login: config.site + '/login/oauth/authorize' +
         '?client_id=' + config.id + '&scope=' + config.scope + '&redirect_uri=' +
         encodeURIComponent(window.location.href)
-    }, { variable: 'data' }));
+    }));
 
     this.$save = this.$el.find('.file .save .popup');
     return this;

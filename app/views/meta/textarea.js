@@ -1,9 +1,9 @@
 var CodeMirror = require('codemirror');
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var Backbone = require('backbone');
 var _ = require('underscore');
 var jsyaml = require('js-yaml');
-var templates = require('../../../dist/templates');
+var templates = require('../../../templates');
 var util = require('../../util');
 
 module.exports = Backbone.View.extend({
@@ -12,6 +12,7 @@ module.exports = Backbone.View.extend({
   type: 'textarea',
 
   initialize: function(options) {
+    this.options = options;
     this.id = options.data.id;
     this.name = options.data.name;
   },
@@ -29,7 +30,7 @@ module.exports = Backbone.View.extend({
       type: 'textarea'
     };
 
-    this.setElement($(_.template(this.template, textarea, {
+    this.setElement($(this.template(textarea, {
       variable: 'meta'
     })));
 

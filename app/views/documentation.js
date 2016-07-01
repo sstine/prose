@@ -1,4 +1,3 @@
-var $ = require('jquery-browserify');
 var marked = require('marked');
 var Backbone = require('backbone');
 
