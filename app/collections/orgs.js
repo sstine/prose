@@ -11,7 +11,6 @@ module.exports = Backbone.Collection.extend({
     options = _.clone(options) || {};
     this.user = options.user;
     this.api = util.getApiFlavor();
-    _.bindAll(this);
   },
 
   parse: function (res) {

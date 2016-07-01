@@ -25,8 +25,6 @@ module.exports = Backbone.Model.extend({
 
   initialize: function(attributes, options) {
     options = options || {};
-    _.bindAll(this);
-
     this.isClone = function() {
       return !!options.clone;
     };

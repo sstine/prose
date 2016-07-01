@@ -1,4 +1,3 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 var Backbone = require('backbone');
 
@@ -20,7 +19,6 @@ var FileView = require('./views/file');
 var DocumentationView = require('./views/documentation');
 var ChooseLanguageView = require('./views/chooselanguage');
 
-var templates = require('../dist/templates');
 var util = require('./util');
 var auth = require('./config');
 var cookie = require('./cookie');
@@ -123,7 +121,7 @@ module.exports = Backbone.Router.extend({
       search: search
     });
 
-    var content = new ProfileView({
+    var profile = new ProfileView({
       auth: this.user,
       search: search,
       sidebar: this.app.sidebar,
@@ -131,23 +129,21 @@ module.exports = Backbone.Router.extend({
       router: this,
       user: user
     });
+    this.view = profile;
 
+    var error = function (model, xhr) { this.error(xhr) }.bind(this);
     user.fetch({
       success: (function(model, res, options) {
-        this.view = content;
-        this.app.$el.find('#main').html(this.view.render().el);
-
+        this.app.$el.find('#main').html(profile.render().el);
         model.repos.fetch({
-          success: repos.render,
-          error: (function(model, xhr, options) {
-            this.error(xhr);
-          }).bind(this),
+          success: function () {
+            repos.render();
+          },
+          error: error,
           complete: this.app.loader.done
         });
       }).bind(this),
-      error: (function(model, xhr, options) {
-        this.error(xhr);
-      }).bind(this)
+      error: error
     });
   },
 

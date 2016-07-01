@@ -5,7 +5,6 @@ var util = require('../util');
 module.exports = Backbone.Model.extend({
 
   initialize: function(attributes, options) {
-    _.bindAll(this);
     this.repo = attributes.repo;
     this.api = util.getApiFlavor();
   },

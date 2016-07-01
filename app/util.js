@@ -1,6 +1,5 @@
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
-var templates = require('../dist/templates');
 var chrono = require('chrono');
 var auth = require('./config');
 

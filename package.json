@@ -12,7 +12,6 @@
     "handsontable": "git://github.com/handsontable/handsontable.git#0.20.2",
     "ignore": "~2.2.7",
     "jquery": "^3.0.0",
-    "jquery-browserify": "*",
     "js-base64": "~2.1.1",
     "js-yaml": "git://github.com/prose/js-yaml.git",
     "keymaster": "git://github.com/madrobby/keymaster.git#0f09fc1b7e66c2b7e07afe89a419366dcf2d1cd8",
@@ -27,12 +26,13 @@
     "github"
   ],
   "devDependencies": {
+    "brfs": "^1.4.3",
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.0",
     "chai": "^1.9.2",
     "del": "^1.1.1",
     "envify": "^3.4.1",
-    "glob": "~3.1.21",
+    "glob": "^7.0.5",
     "gulp": "^3.8.2",
     "gulp-concat": "^2.2.0",
     "gulp-if": "^2.0.0",
@@ -63,7 +63,8 @@
   "browserify": {
     "transform": [
       "browserify-shim",
-      "envify"
+      "envify",
+      "brfs"
     ]
   },
   "browserify-shim": {

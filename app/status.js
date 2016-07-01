@@ -1,5 +1,5 @@
-var config = require('./config'); 
-var $ = require('jquery-browserify'); 
+var config = require('./config');
+var $ = require('jquery');
 
 module.exports = {
   githubApi: function(cb) {

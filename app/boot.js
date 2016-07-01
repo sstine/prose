@@ -17,11 +17,11 @@ window.locale.current('en');
 window.app = {};
 window.Backbone = Backbone;
 
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 
-Backbone.$ = $;
+window.$ = $;
 
 var Router = require('./router');
 var User = require('./models/user');

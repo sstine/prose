@@ -1,4 +1,3 @@
-var $ = require('jquery-browserify');
 var _ = require('underscore');
 
 var Backbone = require('backbone');
@@ -6,7 +5,6 @@ var Repos = require('../collections/repos');
 var Orgs = require('../collections/orgs');
 var auth = require('../config');
 var cookie = require('../cookie');
-var templates = require('../../dist/templates');
 var util = require('../util');
 
 module.exports = Backbone.Model.extend({
@@ -32,7 +30,7 @@ module.exports = Backbone.Model.extend({
       match = window.location.href.match(/\?code=([a-z0-9]*)/);
 
       if (match) {
-        $.ajax(auth.url + '/authenticate/' + match[1], {
+        Backbone.$.ajax(auth.url + '/authenticate/' + match[1], {
           success: function(data) {
             cookie.set('oauth-token', data.token);
 
