@@ -1006,10 +1006,11 @@ module.exports = Backbone.View.extend({
   },
 
   absolutePathFromFile: function(file) {
+    var collection = file.get('collection');
     return this.absolutePathFromComponents(
-      file.collection.repo.get('owner').login,
-      file.collection.repo.get('name'),
-      file.collection.branch.get('name'),
+      collection.repo.get('owner').login,
+      collection.repo.get('name'),
+      collection.branch.get('name'),
       file.get('path')
     );
   },

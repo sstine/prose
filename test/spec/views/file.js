@@ -34,7 +34,7 @@ describe('File view', function() {
     fileView.model.clone = function () {
       return mockFile();
     }
-    fileView.collection = fileView.model.collection;
+    fileView.collection = fileView.model.get('collection');
     fileView.header = mockHeader();
     fileView.header.inputGet = function () { return 'path'; };
   });
@@ -49,14 +49,14 @@ describe('File view', function() {
     it('initializes CodeMirror with the file\'s contents', function() {
       var content = 'the file contents';
       fileView.model = mockFile(content)
-      fileView.collection = fileView.model.collection;
+      fileView.collection = fileView.model.get('collection');
       fileView.render();
       expect(fileView.editor.getValue()).to.equal(content)
     })
 
     it('creates the Hansontable editor', function() {
       fileView.model.set('lang', 'csv');
-      fileView.collection = fileView.model.collection;
+      fileView.collection = fileView.model.get('collection');
       fileView.render();
       expect(fileView.editor).to.be.an.instanceof(Handsontable.Core);
     })
@@ -65,7 +65,7 @@ describe('File view', function() {
       var content = 'a,b\r\nfoo,bar';
       fileView.model = mockFile(content);
       fileView.model.set('lang', 'csv');
-      fileView.collection = fileView.model.collection;
+      fileView.collection = fileView.model.get('collection');
       fileView.render();
       expect(fileView.editor.getSourceData()).to.deep.equal([['a', 'b'], ['foo', 'bar']]);
     })
@@ -74,7 +74,7 @@ describe('File view', function() {
       var content = 'a,b\r\nfoo,bar';
       fileView.model = mockFile(content);
       fileView.model.set('lang', 'csv');
-      fileView.collection = fileView.model.collection;
+      fileView.collection = fileView.model.get('collection');
       fileView.render();
       expect(fileView.editor.getValue()).to.equal(content);
     })
@@ -84,7 +84,7 @@ describe('File view', function() {
         defaults: [{name: 'title'}]
       });
       fileView.model.isNew = function() { return true };
-      fileView.collection = fileView.model.collection;
+      fileView.collection = fileView.model.get('collection');
       // quash an error requiring templates in an un-related view.
       fileView.renderMetadata = function() {};
       fileView.render();
@@ -115,7 +115,7 @@ describe('File view', function() {
           defaults: [{name: 'title'}],
           metadata: {title: 'foo'}
         });
-        fileView.collection = fileView.model.collection;
+        fileView.collection = fileView.model.get('collection');
         // quash an error requiring templates in an un-related view.
         fileView.renderMetadata = function() {};
         fileView.post();
@@ -135,7 +135,7 @@ describe('File view', function() {
           defaults: [{name: 'title'}],
           metadata: {title: 'foo'}
         });
-        fileView.collection = fileView.model.collection;
+        fileView.collection = fileView.model.get('collection');
         // quash an error requiring templates in an un-related view.
         fileView.renderMetadata = function() {};
         fileView.draft();

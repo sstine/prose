@@ -8,7 +8,7 @@ module.exports = Backbone.Model.extend({
   constructor: function(attributes, options) {
     this.api = options && options.api ? options.api : util.getApiFlavor()
     var attr = this.api === 'gitlab' ? this.pickGitlab(attributes) : attributes;
-    Backbone.Model.call(this, attr);
+    Backbone.Model.call(this, attr, options);
   },
 
   parse: function (res) {
@@ -22,42 +22,39 @@ module.exports = Backbone.Model.extend({
   },
 
   idAttribute: 'path',
+  getPlaceholder: function () {
+    return new Date().format('Y-m-d') + '-your-filename.md';
+  },
 
   initialize: function(attributes, options) {
     options = options || {};
-    this.isClone = function() {
-      return !!options.clone;
-    };
-
-    this.placeholder = new Date().format('Y-m-d') + '-your-filename.md';
-    var path = attributes.path.split('?')[0];
+    var isNew = !attributes.sha && !this.get('sha');
 
     // Append placeholder name if file is new and
     // path is an empty string, matches _drafts
     // or matches a directory in collection
+    var placeholder = this.getPlaceholder();
+    var path = attributes.path.split('?')[0];
     var dir = attributes.collection.get(path);
-    if (this.isNew() && (!path || path === '_drafts' ||
+    if (isNew && (!path || path === '_drafts' ||
       (dir && dir.get('type') === 'tree'))) {
-      path = path ? path + '/' + this.placeholder : this.placeholder;
+      path = path ? path + '/' + placeholder : placeholder;
     }
 
     var extension = util.extension(path);
-    var permissions = attributes.repo ?
-      attributes.repo.get('permissions') : undefined;
-    var type;
-
-    this.collection = attributes.collection;
-
-    if (this.isNew() || attributes.type === 'blob') {
-      type = 'file';
-    } else {
-      type = attributes.type;
-    }
+    var permissions = attributes.repo ?  attributes.repo.get('permissions')
+      : undefined;
+    var type = isNew || attributes.type === 'blob' ? 'file'
+      : attributes.type;
 
     this.set({
       binary: util.isBinary(path),
-      content: this.isNew() && _.isUndefined(attributes.content) ? t('main.new.body') : attributes.content,
+      clone: !!options.clone,
+      collection: attributes.collection,
+      content: _.isUndefined(attributes.content) ? t('main.new.body') : attributes.content,
       content_url: attributes.url,
+
+      // TODO I don't think we need this.
       draft: function() {
         var path = this.get('path');
         return util.draft(path);
@@ -82,6 +79,10 @@ module.exports = Backbone.Model.extend({
 
   isNew: function() {
     return this.get('sha') == null;
+  },
+
+  isClone: function() {
+    return this.get('clone');
   },
 
   parse: function(resp, options) {
@@ -132,9 +133,8 @@ module.exports = Backbone.Model.extend({
   },
 
   getContent: function(options) {
-    options = options ? _.clone(options) : {};
-
-    Backbone.Model.prototype.fetch.call(this, _.extend(options, {
+    options = options || {};
+    Backbone.Model.prototype.fetch.call(this, _.extend({}, options, {
       dataType: 'text',
       headers: {
         'Accept': 'application/vnd.github.v3.raw'
@@ -144,9 +144,8 @@ module.exports = Backbone.Model.extend({
   },
 
   getContentSync: function(options) {
-    options = options ? _.clone(options) : {};
-
-    return Backbone.Model.prototype.fetch.call(this, _.extend(options, {
+    options = options || {};
+    return Backbone.Model.prototype.fetch.call(this, _.extend({}, options, {
       async: false,
       dataType: 'text',
       headers: {
@@ -158,7 +157,6 @@ module.exports = Backbone.Model.extend({
 
   serialize: function() {
     var metadata = this.get('metadata');
-
     var content = this.get('content') || '';
     var frontmatter;
 
@@ -168,7 +166,6 @@ module.exports = Backbone.Model.extend({
       } catch(err) {
         throw err;
       }
-
       return ['---', frontmatter, '---'].join('\n') + '\n' + content;
     } else {
       return content;
@@ -206,27 +203,30 @@ module.exports = Backbone.Model.extend({
       path: path,
       message: this.get('message') || this.get('placeholder'),
       content: this.get('binary') ? window.btoa(content) : this.encode(content),
-      branch: this.collection.branch.get('name')
+      branch: this.get('collection').branch.get('name')
     };
 
     // Set sha if modifying existing file
-    if (!this.isNew()) data.sha = this.get('sha');
+    var sha = this.get('sha');
+    if (sha) {
+      data.sha = sha;
+    }
 
     return data;
   },
 
-  clone: function(attributes, options) {
-    options = _.clone(options) || {};
-
+  clone: function(attributes, opts) {
+    var options = { clone: true };
+    if (opts) {
+      options = _.extend({}, opts, options);
+    }
     return new this.constructor(_.extend(_.pick(this.attributes, [
       'branch',
       'collection',
       'content',
       'metadata',
       'repo'
-    ]), attributes), _.extend(options, {
-      clone: true
-    }));
+    ]), attributes), options);
   },
 
   fetch: function(options) {
@@ -245,21 +245,15 @@ module.exports = Backbone.Model.extend({
 
   save: function(options) {
     options = options ? _.clone(options) : {};
-
-    var success = options.success;
-
-    // set method to PUT even when this.isNew()
     if (this.isNew()) {
-      options = _.extend(options, {
-        type: 'PUT'
-      });
+      options.type = 'PUT';
     }
 
+    var success = options.success;
     options.success = (function(model, res, options) {
       this.set(_.extend(res.content, {
         previous: this.serialize()
       }));
-
       if (_.isFunction(success)) success.apply(this, arguments);
     }).bind(this);
 
@@ -272,12 +266,13 @@ module.exports = Backbone.Model.extend({
 
     var success = options.success;
     var error = options.error;
+    var collection = this.get('collection');
 
-    this.collection.repo.fork({
+    collection.repo.fork({
       success: (function(repo, branch) {
         repo.ref({
           'ref': 'refs/heads/' + branch,
-          'sha': this.collection.branch.get('sha'),
+          'sha': collection.branch.get('sha'),
           'success': (function(res) {
             repo.branches.fetch({
               cache: false,
@@ -308,11 +303,11 @@ module.exports = Backbone.Model.extend({
 
                     $.ajax({
                       type: 'POST',
-                      url: this.collection.repo.url() + '/pulls',
+                      url: collection.repo.url() + '/pulls',
                       data: JSON.stringify({
                         title: res.commit.message,
                         body: 'This pull request has been automatically generated by prose.io.',
-                        base: this.collection.branch.get('name'),
+                        base: collection.branch.get('name'),
                         head: repo.get('owner').login + ':' + branch.get('name')
                       }),
                       success: success,
@@ -325,10 +320,10 @@ module.exports = Backbone.Model.extend({
               error: error
             });
           }).bind(this),
-          'error': options.error
+          'error': error
         });
       }).bind(this),
-      error: options.error
+      error: error
     });
   },
 
@@ -341,7 +336,7 @@ module.exports = Backbone.Model.extend({
       path: path,
       message: t('actions.commits.deleted', { filename: path }),
       sha: this.get('sha'),
-      branch: this.collection.branch.get('name')
+      branch: this.get('collection').branch.get('name')
     };
 
     var url = this.url().split('?')[0];
@@ -358,24 +353,20 @@ module.exports = Backbone.Model.extend({
   },
 
   url: function() {
-    return this.collection.repo.fileUrl(this.collection.branch.get('name'), this.get('path'))
+    var collection = this.get('collection');
+    return collection.repo.fileUrl(collection.branch.get('name'), this.get('path'))
   },
 
-  validate: function(attributes, options) {
+  validate: function(attributes) {
+    // Path conflicts with another file in repo
+    if (this.get('collection').where({ path: attributes.path }).length > 1) {
+      return t('actions.save.fileNameExists');
+    }
 
-    // For testing:
-    // if (attributes) return 'uh oh spaghetti o'
-    // Fail validation if path conflicts with another file in repo
-    if (this.collection.where({ path: attributes.path }).length > 1) return t('actions.save.fileNameExists');
-
-    // Fail validation if name matches default
-    var name = util.extractFilename(this.get('path'));
-    if (name === this.placeholder) return 'File name is default';
-
-    // Fail validation if marked returns an error
-    // TODO: does this work as callback?
-    marked(attributes.content, {}, function(err, content) {
-      if (err) return err;
-    });
+    // Name is still the default name
+    var name = util.extractFilename(attributes.path)[1];
+    if (name === this.getPlaceholder()) {
+      return 'File name is default';
+    }
   }
 });
