@@ -1,7 +1,7 @@
 <div class='form-item yaml-block'>
-  <label for='<%= meta.name %>'><%= meta.label %></label>
-  <% if (meta.help) { %><small class='deemphasize'><%= meta.help %></small><% } %>
+  <label for='<%= data.name %>'><%= data.label %></label>
+  <% if (data.help) { %><small class='deemphasize'><%= data.help %></small><% } %>
   <fieldset>
-    <textarea class='metafield' id='<%= meta.id %>' type='text' name='<%= meta.name %>' data-type='<%= meta.type %>' placeholder='<%= meta.placeholder %>'><%= meta.value %></textarea>
+    <textarea class='metafield' id='<%= data.id %>' type='text' name='<%= data.name %>' data-type='<%= data.type %>' placeholder='<%= data.placeholder %>'><%= data.value %></textarea>
   </fieldset>
 </div>
