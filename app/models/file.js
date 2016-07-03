@@ -86,11 +86,12 @@ module.exports = Backbone.Model.extend({
   },
 
   parse: function(resp, options) {
-    if (typeof resp === 'string') {
-      return this.parseContent(resp);
-    } else if (typeof resp === 'object') {
-      // TODO: whitelist resp JSON
-      return _.omit(resp, 'content');
+    var content = resp.content;
+    if (content && resp.encoding === 'base64') {
+      return _.extend({}, resp, this.parseContent(window.atob(content)));
+    }
+    else {
+      return resp;
     }
   },
 
@@ -132,6 +133,8 @@ module.exports = Backbone.Model.extend({
     return res;
   },
 
+  // TODO figure out if these functions are still necessary -
+  // possible that the API has changed and we don't need 'em.
   getContent: function(options) {
     options = options || {};
     Backbone.Model.prototype.fetch.call(this, _.extend({}, options, {
@@ -227,20 +230,6 @@ module.exports = Backbone.Model.extend({
       'metadata',
       'repo'
     ]), attributes), options);
-  },
-
-  fetch: function(options) {
-    options = options ? _.clone(options) : {};
-
-    // Series necessary for accurate isNew() check in getContent
-    if (this.isNew()) {
-      if (_.isFunction(options.success)) options.success();
-      if (_.isFunction(options.complete)) options.complete();
-    } else {
-      // TODO: use deffered to fire callbacks when both functions complete
-      Backbone.Model.prototype.fetch.call(this, _.omit(options, 'success', 'error', 'complete'));
-      this.getContent.apply(this, arguments);
-    }
   },
 
   save: function(options) {
