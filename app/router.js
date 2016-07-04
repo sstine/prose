@@ -100,7 +100,8 @@ module.exports = Backbone.Router.extend({
   profile: function(login) {
     if (this.view) this.view.remove();
 
-    this.app.loader.start(t('loading.repos'));
+    var loader = this.app.loader;
+    loader.start(t('loading.repos'));
     this.app.nav.mode('repos');
 
     util.documentTitle(login);
@@ -131,16 +132,20 @@ module.exports = Backbone.Router.extend({
     });
     this.view = profile;
 
-    var error = function (model, xhr) { this.error(xhr) }.bind(this);
+    var error = function (model, xhr) {
+      loader.stop();
+      this.error(xhr)
+    }.bind(this);
+
     user.fetch({
       success: (function(model, res, options) {
         this.app.$el.find('#main').html(profile.render().el);
         model.repos.fetch({
           success: function () {
             repos.render();
+            loader.stop();
           },
           error: error,
-          complete: this.app.loader.done
         });
       }).bind(this),
       error: error
@@ -161,7 +166,8 @@ module.exports = Backbone.Router.extend({
       return this.view.files.render();
     } else if (this.view) this.view.remove();
 
-    this.app.loader.start(t('loading.repo'));
+    var loader = this.app.loader;
+    loader.start(t('loading.repo'));
     this.app.nav.mode('repo');
 
     var title = branch ? title = repoName + ': /' + path + ' at ' + branch
@@ -210,11 +216,12 @@ module.exports = Backbone.Router.extend({
 
         this.view = repoView;
         this.app.$el.find('#main').html(repoView.render().el);
+        loader.stop();
       }).bind(this),
       error: (function(model, xhr, options) {
+        loader.stop();
         this.error(xhr);
       }).bind(this),
-      complete: this.app.loader.done
     });
   },
 
@@ -240,16 +247,17 @@ module.exports = Backbone.Router.extend({
     if (this.view) this.view.remove();
 
     this.app.nav.mode('file');
+    var loader = this.app.loader;
 
     switch(mode) {
       case 'new':
-        this.app.loader.start(t('loading.creating'));
+        loader.start(t('loading.creating'));
         break;
       case 'edit':
-        this.app.loader.start(t('loading.file'));
+        loader.start(t('loading.file'));
         break;
       case 'preview':
-        this.app.loader.start(t('loading.preview'));
+        loader.start(t('loading.preview'));
         break;
     }
 
@@ -286,11 +294,12 @@ module.exports = Backbone.Router.extend({
           success: (function(model, res, options) {
             this.view = new FileView(file);
             this.app.$el.find('#main').html(this.view.el);
+            loader.stop();
           }).bind(this),
           error: (function(model, xhr, options) {
             this.error(xhr);
+            loader.stop();
           }).bind(this),
-          complete: this.app.loader.done
         });
       }).bind(this),
       error: (function(model, xhr, options) {
@@ -302,7 +311,8 @@ module.exports = Backbone.Router.extend({
   preview: function(login, repoName, mode, branch, path) {
     if (this.view) this.view.remove();
 
-    this.app.loader.start(t('loading.preview'));
+    var loader = this.app.loader;
+    loader.start(t('loading.preview'));
 
     var user = this.users.findWhere({ login: login });
     if (_.isUndefined(user)) {
@@ -333,11 +343,12 @@ module.exports = Backbone.Router.extend({
         // TODO: should this still pass through File view?
         this.view = new Preview(file);
         this.app.$el.find('#main').html(this.view.el);
+        loader.stop();
       }).bind(this),
       error: (function(model, xhr, options) {
         this.error(xhr);
-      }).bind(this),
-      complete: this.app.loader.done
+        loader.stop();
+      }).bind(this)
     });
   },
 
