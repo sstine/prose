@@ -157,8 +157,9 @@ module.exports = Backbone.View.extend({
       if (model.isNew()) {
         this.render();
       } else {
-        this.listenToOnce(model, 'change', this.render);
-        model.fetch();
+        model.fetch({
+          success: this.render.bind(this)
+        });
       }
     }
 
