@@ -457,10 +457,8 @@ module.exports = Backbone.View.extend({
       collection: this.collection,
       config: this.config
     });
-
     this.subviews['toolbar'] = this.toolbar;
-    this.toolbar.setElement(this.$el.find('#toolbar')).render();
-
+    this.toolbar.setElement(this.$('#toolbar')).render();
     this.listenTo(this.toolbar, 'updateImageInsert', this.updateImageInsert);
     this.listenTo(this.toolbar, 'post', this.post);
   },

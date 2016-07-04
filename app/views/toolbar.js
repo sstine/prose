@@ -58,16 +58,8 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    var toolbar = {
-      markdown: this.file.get('markdown'),
-      writable: this.file.get('writable'),
-      lang: this.file.get('lang'),
-      draft: this.file.get('draft'),
-      metadata: this.file.get('metadata')
-    };
-
-    this.$el.html(this.template(toolbar, { variable: 'toolbar' }));
-
+    var file = this.file;
+    this.$el.html(this.template(file.attributes));
     return this;
   },
 
@@ -76,7 +68,6 @@ module.exports = Backbone.View.extend({
     upload.fileSelect(e, function(e, file, content) {
       view.trigger('updateImageInsert', e, file, content);
     });
-
     return false;
   },
 
