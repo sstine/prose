@@ -296,16 +296,16 @@ module.exports = Backbone.Router.extend({
             this.app.$el.find('#main').html(this.view.el);
             loader.stop();
           }).bind(this),
-          error: (function(model, xhr, options) {
-            this.error(xhr);
-            loader.stop();
-          }).bind(this),
+          error: error
         });
       }).bind(this),
-      error: (function(model, xhr, options) {
-        this.error(xhr);
-      }).bind(this)
+      error: error
     });
+
+    var error = function (model, xhr) {
+      this.error(xhr);
+      loader.stop();
+    }.bind(this);
   },
 
   preview: function(login, repoName, mode, branch, path) {

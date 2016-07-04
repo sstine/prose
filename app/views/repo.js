@@ -82,7 +82,6 @@ module.exports = Backbone.View.extend({
       search: this.search,
       sidebar: this.sidebar
     });
-
     this.subviews['files'] = this.files;
   },
 
@@ -95,7 +94,6 @@ module.exports = Backbone.View.extend({
       router: this.router,
       sidebar: this.sidebar
     });
-
     this.subviews['branches'] = this.branches;
   },
 
@@ -109,23 +107,30 @@ module.exports = Backbone.View.extend({
       sidebar: this.sidebar,
       view: this
     });
-
     this.subviews['history'] = this.history;
-
     if (_.isFunction(cb)) cb.apply(this);
   },
 
   create: function() {
-    this.files.newFile();
+    this.router.navigate(this.newFileUrl(), true);
     return false;
+  },
+
+  newFileUrl: function () {
+    var path = [
+      this.model.get('owner').login,
+      this.model.get('name'),
+      'new',
+      this.branch,
+      (this.files.path || this.files.rooturl)
+    ];
+    return _.compact(path).join('/')
   },
 
   remove: function() {
     this.sidebar.close();
-
     _.invoke(this.subviews, 'remove');
     this.subviews = {};
-
     Backbone.View.prototype.remove.apply(this, arguments);
   }
 });

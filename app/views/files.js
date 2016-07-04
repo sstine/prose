@@ -78,18 +78,6 @@ module.exports = Backbone.View.extend({
     });
   },
 
-  newFile: function() {
-    var path = [
-      this.repo.get('owner').login,
-      this.repo.get('name'),
-      'new',
-      this.branch,
-      this.path ? this.path : this.rooturl
-    ]
-
-    this.router.navigate(_.compact(path).join('/'), true);
-  },
-
   render: function() {
 
     var search = this.search && this.search.input && this.search.input.val();
@@ -187,7 +175,6 @@ module.exports = Backbone.View.extend({
   remove: function() {
     _.invoke(this.subviews, 'remove');
     this.subviews = {};
-
     Backbone.View.prototype.remove.apply(this, arguments);
   }
 });
