@@ -53,17 +53,12 @@ module.exports = Backbone.View.extend({
       success: this.setCollection.bind(this),
       error: function(model, xhr) {
         options.router.error(xhr);
-      },
-      complete: function () {
-        app.loader.done();
       }
     });
   },
 
   setCollection: function() {
     var files = this.branches.findWhere({ name: this.branch }).files;
-    var loader = this.app.loader;
-    loader.start();
     this.collection = files;
     this.listenToOnce(files, 'sync', function () {
       // Update this.path with rooturl
@@ -79,9 +74,6 @@ module.exports = Backbone.View.extend({
     var router = this.router;
     files.fetch({
       error: function(model, xhr) { router.error(xhr); },
-      complete: function () {
-        loader.done();
-      },
       reset: true
     });
   },
@@ -99,7 +91,6 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
-    this.app.loader.start();
 
     var search = this.search && this.search.input && this.search.input.val();
     var rooturl = validatePath(this.rooturl);
@@ -160,7 +151,7 @@ module.exports = Backbone.View.extend({
       subviews[file.id] = view;
     });
     this.$el.find('ul').html(frag);
-    this.app.loader.done();
+    this.app.loader.stop();
     return this;
   },
 
