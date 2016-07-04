@@ -233,7 +233,7 @@ module.exports = Backbone.Collection.extend({
         });
 
         var name = util.extractFilename(path)[1];
-        model.set('placeholder', t('actions.commits.created', { filename: name }));
+        model.set('placeholder', util.commitMessage(true, name));
 
         // add to collection on save
         model.save({
@@ -274,7 +274,7 @@ module.exports = Backbone.Collection.extend({
     if (model) {
       // TODO: confirm overwrite with UI prompt
       model.set('content', content);
-      model.set('placeholder', t('actions.commits.updated', { filename: file.name }));
+      model.set('placeholder', util.commitMessage(false, file.name));
     } else {
       // initialize new File model with content
       model = new File({
@@ -284,8 +284,7 @@ module.exports = Backbone.Collection.extend({
         path: path,
         repo: this.repo
       });
-
-      model.set('placeholder', t('actions.commits.created', { filename: file.name }));
+      model.set('placeholder', util.commitMessage(true, file.name));
     }
 
     // add to collection on save

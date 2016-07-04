@@ -35,11 +35,7 @@ module.exports = Backbone.View.extend({
 
   updatePlaceholder: function(model, value, options) {
     var name = util.extractFilename(value)[1];
-
-    var placeholder = this.file.isNew() ?
-      t('actions.commits.created', { filename: name }) :
-      t('actions.commits.updated', { filename: name });
-
+    var placeholder = util.commitMessage(this.file.isNew(), name);
     this.file.set('placeholder', placeholder);
     this.$el.find('.commit-message').attr('placeholder', placeholder);
   },

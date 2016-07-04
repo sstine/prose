@@ -301,5 +301,10 @@ module.exports = {
   getApiFlavor: function (apiUrl) {
     apiUrl = apiUrl || auth.api;
     return /gitlab/.test(apiUrl) ? 'gitlab' : 'github';
+  },
+
+  commitMessage: function (isNew, filename) {
+    return isNew ? t('actions.commits.created', { filename: filename }) :
+      t('actions.commits.updated', { filename: filename });
   }
 };
