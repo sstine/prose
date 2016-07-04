@@ -198,7 +198,7 @@ module.exports = Backbone.Model.extend({
   toJSON: function() {
     // Override toJSON method to only send necessary attributes
     var attr = this.attributes;
-    var path = attr.oldpath || attr.path;
+    var path = attr.path || attr.oldpath
     var content = attr.binary ? window.btoa(this.serialize())
       : this.encode(this.serialize());
     var message = attr.message || attr.placeholder;

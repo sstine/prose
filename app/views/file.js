@@ -100,14 +100,15 @@ module.exports = Backbone.View.extend({
 
     // Set model either by calling directly for new File models
     // or by filtering collection for existing File models
+    var model;
     switch(this.mode) {
       case 'edit':
       case 'blob':
-        this.model = this.collection.findWhere({ path: this.path });
+        model = this.collection.findWhere({ path: this.path });
         break;
       case 'preview':
-        this.model = this.collection.findWhere({ path: this.path });
-        if (!this.model) {
+        model = this.collection.findWhere({ path: this.path });
+        if (!model) {
           // We may be trying to preview a new file that only has
           // stashed information lets check and create a dummy model
           var previewPath = this.absolutePathFromComponents (
@@ -117,16 +118,17 @@ module.exports = Backbone.View.extend({
             this.path
           );
           if (this.getStashForPath(previewPath)) {
-            this.model = this.newEmptyFile();
+            model = this.newEmptyFile();
           }
         }
         break;
       case 'new':
-        this.model = this.newEmptyFile();
+        model = this.newEmptyFile();
         break;
     }
+    this.model = model;
 
-    if (!this.model) {
+    if (!model) {
       this.router.notify(
         t('notification.error.exists'), undefined,
         [{
@@ -150,17 +152,16 @@ module.exports = Backbone.View.extend({
     else {
       var defaults = this.collection.defaults;
       if (defaults) {
-        this.model.set('defaults', defaults[this.nearestPath(this.model.get('path'), defaults)]);
+        model.set('defaults', defaults[this.nearestPath(model.get('path'), defaults)]);
       }
-      if (this.model.isNew()) {
+      if (model.isNew()) {
         this.render();
       } else {
-        this.listenToOnce(this.model, 'change', this.render);
-        this.model.fetch();
+        this.listenToOnce(model, 'change', this.render);
+        model.fetch();
       }
     }
 
-    // TODO set
     this.app.loader.done();
   },
 
