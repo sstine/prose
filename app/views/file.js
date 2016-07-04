@@ -79,21 +79,20 @@ module.exports = Backbone.View.extend({
       }
     }).bind(this);
 
-    this.branches.fetch({
-      success: this.setCollection.bind(this),
-      error: function(model, xhr) {
-        options.router.error(xhr);
-      }
-    });
-  },
-
-  setCollection: function() {
-    this.collection = this.branches.findWhere({ name: this.branch }).files;
-    this.collection.fetch({
-      success: this.setModel.bind(this),
-      error: (function(model, xhr, options) {
-        this.router.error(xhr);
-      }).bind(this)
+    var _this = this;
+    var error = function (model, xhr) {
+      options.router.error(xhr);
+    };
+    options.branches.fetch({
+      success: function (branches, resp) {
+        var files = branches.findWhere({ name: _this.branch }).files;
+        files.fetch({
+          success: _this.setModel.bind(_this),
+          error: error
+        });
+        _this.collection = files;
+      },
+      error: error
     });
   },
 
@@ -127,47 +126,39 @@ module.exports = Backbone.View.extend({
         break;
     }
 
-    // Set default metadata from collection
-    var defaults = this.collection.defaults;
-    var path;
-    if (this.model) {
-      if (defaults) {
-        path = this.nearestPath(this.model.get('path'), defaults);
-        this.model.set('defaults', defaults[path]);
-      }
-
-      // Render on complete to render even if model does not exist on remote yet
-      this.model.fetch({
-        complete: (function() {
-          this.app.loader.done();
-          this.render();
-        }).bind(this)
-      });
-    } else {
+    if (!this.model) {
       this.router.notify(
-        t('notification.error.exists'),
-        undefined,
-        [
-          {
-            'title': t('notification.create'),
-            'className': 'create',
-            'link': '#'
-          },
-          {
-            'title': t('notification.back'),
-            'link': '#' + _.compact([
-              this.repo.get('owner').login,
-              this.repo.get('name'),
-              'tree',
-              this.branch,
-              util.extractFilename(this.path)[0]
-            ]).join('/')
-          }
-        ]
+        t('notification.error.exists'), undefined,
+        [{
+          'title': t('notification.create'),
+          'className': 'create',
+          'link': '#'
+        },
+        {
+          'title': t('notification.back'),
+          'link': '#' + _.compact([
+            this.repo.get('owner').login,
+            this.repo.get('name'),
+            'tree',
+            this.branch,
+            util.extractFilename(this.path)[0]
+          ]).join('/')
+        }]
       );
-
-      this.app.loader.done();
     }
+
+    else {
+      var defaults = this.collection.defaults;
+      if (defaults) {
+        this.model.set('defaults', defaults[this.nearestPath(this.model.get('path'), defaults)]);
+      }
+      // Render on complete to render even if model does not exist on remote yet
+      this.listenToOnce(this.model, 'change', this.render);
+      this.model.fetch();
+    }
+
+    // TODO set
+    this.app.loader.done();
   },
 
   newEmptyFile: function() {
@@ -184,11 +175,9 @@ module.exports = Backbone.View.extend({
     // Match paths in _drafts to corresponding defaults set at _posts
     path = path.replace(/^(_drafts)/, '_posts');
     var nearestDir = /\/?(?!.*\/).*$/;
-
     while (!_.has(defaults, path) && nearestDir.test(path) && path) {
       path = path.replace( nearestDir, '' );
     }
-
     return path;
   },
 
@@ -361,11 +350,12 @@ module.exports = Backbone.View.extend({
 
   initEditor: function() {
     var lang = this.model.get('lang');
-
     var code = this.$el.find('#code')[0];
     code.value = this.model.get('content') || '';
+    var editor;
+
     // TODO: set default content for CodeMirror
-    this.editor = CodeMirror.fromTextArea(code, {
+    editor = CodeMirror.fromTextArea(code, {
       mode: lang,
       lineWrapping: true,
       lineNumbers: (lang === 'gfm' || lang === null) ? false : true,
@@ -374,6 +364,7 @@ module.exports = Backbone.View.extend({
       dragDrop: false,
       theme: 'prose-bright'
     });
+    this.editor = editor;
 
     // Bind Drag and Drop work on the editor
     if (this.model.get('markdown') && this.model.get('writable')) {
@@ -382,8 +373,8 @@ module.exports = Backbone.View.extend({
           this.updateImageInsert(e, file, content);
         } else {
           // Clear selection
-          this.editor.focus();
-          this.editor.replaceSelection('');
+          editor.focus();
+          editor.replaceSelection('');
 
           // Append images links in this.upload()
           this.upload(e, file, content);
@@ -394,18 +385,25 @@ module.exports = Backbone.View.extend({
     // Monitor the current selection and apply
     // an active class to any snippet links
     if (lang === 'gfm') {
-      this.listenTo(this.editor, 'cursorActivity', this.cursor);
+      this.registerEditorEvent('cursorActivity', this.cursor);
     }
 
-    this.listenTo(this.editor, 'change', this.makeDirty, this);
-    this.listenTo(this.editor, 'focus', this.focus, this);
-
+    this.registerEditorEvent('change', this.makeDirty);
+    this.registerEditorEvent('focus', this.focus);
     this.refreshCodeMirror();
-
-    // Check sessionStorage for existing stash
-    // Apply if stash exists and is current, remove if expired
     this.stashApply();
   },
+
+  // keep track of events bound to codeMirror raw editor instance
+  registerEditorEvent: function (type, cb) {
+    var callback = cb.bind(this);
+    var editor = this.editor;
+    editor.on(type, callback);
+    this.editorEvents.push(function () {
+      editor.off(type, callback);
+    });
+  },
+  editorEvents: [],
 
   keyMap: function() {
     var self = this;
@@ -507,14 +505,12 @@ module.exports = Backbone.View.extend({
 
   initSidebar: function() {
     // Settings sidebar panel
-    this.settings = this.sidebar.initSubview('settings', {
+    this.subviews['settings'] = this.sidebar.initSubview('settings', {
       sidebar: this.sidebar,
       config: this.collection.config,
       file: this.model,
       fileInput: this.titleAsHeading()
     }).render();
-    this.subviews['settings'] = this.settings;
-
     this.listenTo(this.sidebar, 'makeDirty', this.makeDirty);
 
     // Commit message sidebar panel
@@ -557,26 +553,24 @@ module.exports = Backbone.View.extend({
   },
 
   render: function() {
+    var model = this.model;
     this.app.loader.start();
-
     if (this.mode === 'preview') {
       this.preview();
     } else {
-      var content = this.model.get('content');
+      var content = model.get('content');
+      var useCSVEditor = (['csv', 'tsv'].indexOf(model.get('lang')) !== -1
+                          && !cookie.get('disableCSVEditor'));
 
-      var file = {
-        markdown: this.model.get('markdown'),
-        lang: this.model.get('lang'),
-        useCSVEditor: (['csv', 'tsv'].indexOf(this.model.get('lang')) !== -1 && !cookie.get('disableCSVEditor'))
-      };
-
-      this.$el.empty().append(this.template(file));
+      this.$el.empty().append(this.template(_.extend({}, model.attributes, {
+        useCSVEditor: useCSVEditor
+      })));
 
       // Store the configuration object from the collection
-      this.config = this.model.get('collection').config;
+      this.config = model.get('collection').config;
 
       // initialize the subviews
-      if (file.useCSVEditor) {
+      if (useCSVEditor) {
         this.initCSVEditor();
       } else {
         this.initEditor();
@@ -586,14 +580,13 @@ module.exports = Backbone.View.extend({
       this.initSidebar();
 
       var mode = ['file'];
-      var markdown = this.model.get('markdown');
+      var markdown = model.get('markdown');
       var jekyll = /^(_posts|_drafts)/.test(this.model.get('path'));
 
       // Update the navigation view with menu options
       // if a file contains metadata, has default metadata or is Markdown (except CSVs)
-      if (!file.useCSVEditor && (this.model.get('metadata') || this.model.get('defaults') || (markdown && jekyll))) {
+      if (!useCSVEditor && (this.model.get('metadata') || this.model.get('defaults') || (markdown && jekyll))) {
         this.renderMetadata();
-
         mode.push('meta');
       }
 
@@ -601,7 +594,6 @@ module.exports = Backbone.View.extend({
       if (!this.model.isNew()) mode.push('settings');
 
       this.nav.mode(mode.join(' '));
-
       this.updateDocumentTitle();
 
       // Preview needs access to marked, so it's registered here
@@ -611,18 +603,16 @@ module.exports = Backbone.View.extend({
         }
       });
 
-      if (this.model.get('markdown') && this.mode === 'blob') {
+      if (markdown && this.mode === 'blob') {
         this.blob();
       } else {
         // Editor is first up so trigger an active class for it
         this.$el.find('#edit').toggleClass('active', true);
         this.$el.find('.file .edit').addClass('active');
-
-        if (this.model.get('markdown')) {
+        if (markdown) {
           util.fixedScroll(this.$el.find('.topbar'), 90);
         }
       }
-
       if (this.mode === 'blob') {
         this.blob();
       }
@@ -776,7 +766,7 @@ module.exports = Backbone.View.extend({
 
       layout.fetch({
         success: (function(model, res, options) {
-          model.getContent({
+          model.fetch({
             success: (function(model, res, options) {
               var meta = model.get('metadata');
               var content = model.get('content');
@@ -1054,7 +1044,8 @@ module.exports = Backbone.View.extend({
     this.sidebar.close();
     this.nav.active('edit');
 
-    this.model.fetch({ complete: this.render });
+    this.listenToOnce(this.model, 'change', this.render);
+    this.model.fetch();
   },
 
   post: function(e) {
@@ -1189,7 +1180,6 @@ module.exports = Backbone.View.extend({
       // Restore from stash if file sha hasn't changed
       if (this.editor && this.editor.setValue) this.editor.setValue(stash.content);
       if (this.metadataEditor) {
-        // this.rawEditor.setValue('');
         this.metadataEditor.setValue(stash.metadata);
       }
     } else {
@@ -1219,12 +1209,8 @@ module.exports = Backbone.View.extend({
 
     var method = this.model.get('writable') ? this.model.save : this.patch;
 
-    //this.updateSaveState(t('actions.save.metaError'), 'error');
-    //this.updateSaveState(t('actions.error'), 'error');
-    //this.updateSaveState(t('actions.save.saved'), 'saved', true);
-    //this.updateSaveState(t('actions.save.fileNameError'), 'error');
-
     // Validation checking
+    // TODO move this to a listenTo that doesn't get fired on each save
     this.model.on('invalid', (function(model, error) {
       this.updateSaveState(error, 'error');
 
@@ -1240,7 +1226,7 @@ module.exports = Backbone.View.extend({
     this.model.content = (this.editor) ? this.editor.getValue() : '';
 
     // Delegate
-    method.call(this, {
+    method.call(this.model, {
       success: (function(model, res, options) {
         var url;
         var data;
@@ -1273,8 +1259,7 @@ module.exports = Backbone.View.extend({
           data = {
             path: old,
             message: t('actions.commits.deleted', { filename: name }),
-            sha: model.previous('sha'),
-            branch: this.collection.branch.get('name')
+            sha: model.previous('sha'), branch: this.collection.branch.get('name')
           };
 
           params = _.map(_.pairs(data), function(param) {
@@ -1388,6 +1373,9 @@ module.exports = Backbone.View.extend({
       this.stashFile();
       this.model.fetch();
     }
+
+    // remove Codemirror events
+    this.editorEvents.forEach(function (remove) { remove(); });
 
     _.invoke(this.subviews, 'remove');
     this.subviews = {};

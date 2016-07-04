@@ -2,7 +2,7 @@ var _ = require('underscore');
 var marked = require('marked');
 var Backbone = require('backbone');
 var jsyaml = require('js-yaml');
-var util = require('.././util');
+var util = require('../util');
 
 module.exports = Backbone.Model.extend({
   constructor: function(attributes, options) {
@@ -11,13 +11,10 @@ module.exports = Backbone.Model.extend({
     Backbone.Model.call(this, attr, options);
   },
 
-  parse: function (res) {
-    return this.api === 'gitlab' ? this.pickGitlab(res) : res;
-  },
-
   pickGitlab: function (attr) {
+    var id = attr.id || attr.blob_id;
     return _.extend({
-      sha: attr.id
+      sha: id
     }, attr);
   },
 
@@ -85,10 +82,11 @@ module.exports = Backbone.Model.extend({
     return this.get('clone');
   },
 
-  parse: function(resp, options) {
+  parse: function(resp) {
+    resp = this.api === 'gitlab' ? this.pickGitlab(resp) : resp;
     var content = resp.content;
     if (content && resp.encoding === 'base64') {
-      return _.extend({}, resp, this.parseContent(window.atob(content)));
+      return _.extend({}, resp, this.parseContent(this.decode(content)));
     }
     else {
       return resp;
@@ -198,21 +196,36 @@ module.exports = Backbone.Model.extend({
   },
 
   toJSON: function() {
-    // Override default toJSON method to only send necessary data to GitHub
-    var path = this.get('oldpath') || this.get('path');
-    var content = this.serialize();
+    // Override toJSON method to only send necessary attributes
+    var attr = this.attributes;
+    var path = attr.oldpath || attr.path;
+    var content = attr.binary ? window.btoa(this.serialize())
+      : this.encode(this.serialize());
+    var message = attr.message || attr.placeholder;
+    var branch = attr.branch.get('name');
+    var data;
 
-    var data = {
-      path: path,
-      message: this.get('message') || this.get('placeholder'),
-      content: this.get('binary') ? window.btoa(content) : this.encode(content),
-      branch: this.get('collection').branch.get('name')
-    };
+    if (this.api === 'gitlab') {
+      data = {
+        file_path: path,
+        commit_message: message,
+        content: content,
+        branch_name: branch,
+        encoding: 'base64'
+      }
+    }
 
-    // Set sha if modifying existing file
-    var sha = this.get('sha');
-    if (sha) {
-      data.sha = sha;
+    else {
+      data = {
+        path: path,
+        message: messsage,
+        content: content,
+        branch: branch
+      };
+      var sha = attr.sha;
+      if (sha) {
+        data.sha = sha;
+      }
     }
 
     return data;
@@ -233,18 +246,32 @@ module.exports = Backbone.Model.extend({
   },
 
   save: function(options) {
-    options = options ? _.clone(options) : {};
-    if (this.isNew()) {
-      options.type = 'PUT';
+    options = options || {};
+
+    // TODO this might not be necessary:
+    // http://backbonejs.org/docs/backbone.html#section-179
+    //
+    // Github takes PUT for new files and existing.
+    // https://developer.github.com/v3/repos/contents/#create-a-file
+    // https://developer.github.com/v3/repos/contents/#update-a-file
+    // Gitlab takes POST for new files, PUT for existing.
+    // http://doc.gitlab.com/ee/api/repository_files.html#create-new-file-in-repository
+    // http://doc.gitlab.com/ee/api/repository_files.html#update-existing-file-in-repository
+    var gitlab = this.api === 'gitlab';
+    var isNew = this.isNew();
+    var type = 'PUT';
+    if (gitlab && isNew) {
+      type = 'POST';
     }
+    options.type = type;
 
     var success = options.success;
-    options.success = (function(model, res, options) {
-      this.set(_.extend(res.content, {
-        previous: this.serialize()
+    options.success = function(model, res, options) {
+      model.set(_.extend(res.content, {
+        previous: model.serialize()
       }));
-      if (_.isFunction(success)) success.apply(this, arguments);
-    }).bind(this);
+      if (_.isFunction(success)) success.apply(model, arguments);
+    };
 
     // Call save method with undefined attributes
     Backbone.Model.prototype.save.call(this, undefined, options);
