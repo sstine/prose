@@ -152,9 +152,12 @@ module.exports = Backbone.View.extend({
       if (defaults) {
         this.model.set('defaults', defaults[this.nearestPath(this.model.get('path'), defaults)]);
       }
-      // Render on complete to render even if model does not exist on remote yet
-      this.listenToOnce(this.model, 'change', this.render);
-      this.model.fetch();
+      if (this.model.isNew()) {
+        this.render();
+      } else {
+        this.listenToOnce(this.model, 'change', this.render);
+        this.model.fetch();
+      }
     }
 
     // TODO set
