@@ -150,6 +150,9 @@ module.exports = Backbone.View.extend({
     }
 
     else {
+      // Validation checking
+      model.on('invalid', this.onInvalid.bind(this));
+
       var defaults = this.collection.defaults;
       if (defaults) {
         model.set('defaults', defaults[this.nearestPath(model.get('path'), defaults)]);
@@ -867,16 +870,11 @@ module.exports = Backbone.View.extend({
       this.branch,
       this.path
     ]);
-
     this.router.navigate(url.join('/'), {
       trigger: false,
       replace: true
     });
-
     this.updateDocumentTitle();
-
-    // TODO: what is this updating?
-    this.$el.find('.chzn-select').trigger('liszt:updated');
   },
 
   makeDirty: function(e) {
@@ -1204,32 +1202,26 @@ module.exports = Backbone.View.extend({
     store.removeItem(filepath);
   },
 
+  onInvalid: function(model, error) {
+    this.updateSaveState(error, 'error');
+    var modal = new ModalView({ message: error });
+    modal.setElement(this.$('#modal'));
+    modal.render();
+  },
+
   updateFile: function() {
     var view = this;
 
     // Trigger the save event
     this.updateSaveState(t('actions.save.saving'), 'saving');
-
     var method = this.model.get('writable') ? this.model.save : this.patch;
-
-    // Validation checking
-    // TODO move this to a listenTo that doesn't get fired on each save
-    this.model.on('invalid', (function(model, error) {
-      this.updateSaveState(error, 'error');
-
-      view.modal = new ModalView({
-        message: error
-      });
-
-      view.$el.find('#modal').html(view.modal.el);
-      view.modal.render();
-    }).bind(this));
 
     // Update content
     this.model.content = (this.editor) ? this.editor.getValue() : '';
 
     // Delegate
     method.call(this.model, {
+      parse: false,
       success: (function(model, res, options) {
         var url;
         var data;

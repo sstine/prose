@@ -287,7 +287,7 @@ module.exports = Backbone.Router.extend({
     };
 
     // TODO: defer this success function until both user and repo have been fetched
-    // in paralell rather than in series
+    // in parallel rather than in series
     user.fetch({
       success: (function(model, res, options) {
         repo.fetch({
