@@ -1,5 +1,5 @@
-var $ = require('jquery');
 var Backbone = require('backbone');
+var $ = Backbone.$;
 var _ = require('underscore');
 var templates = require('../../../templates');
 
@@ -24,9 +24,10 @@ module.exports = Backbone.View.extend({
       lang: data.lang
     };
 
-    this.setElement($(this.template(select)));
-    this.$form = this.$el.find('select');
-    return this.$el;
+    var $el = $(this.template(select));
+    this.setElement($el);
+    this.$form = $el.find('select');
+    return this.$el = $el;
   },
 
   getValue: function() {
@@ -38,26 +39,25 @@ module.exports = Backbone.View.extend({
   },
 
   setValue: function(value) {
-    var $el = this.$el;
-    var $form = this.$form;
-    if (_.isArray(value)) {
-      value = value[0];
-    }
-    if (!value && value !== 0) {
-      $el.find('option').each(function () {
-        $(this).attr('selected', false);
-      });
-    }
-    else {
-      var match = $el.find('option[value="' + value + '"]');
-      if (match.length) {
-        match.attr('selected', 'selected');
-        $form.trigger('liszt:updated');
-      }
-      else {
-        $form.append($('<option />', {selected: 'selected', value: value, text: value}));
-      }
-    }
-    $form.trigger('liszt:updated');
+     var $el = this.$el;
+     var $form = this.$form;
+     if (_.isArray(value)) {
+        value = value[0];
+     }
+     if (!value && value !== 0) {
+        $el.find('option').each(function () {
+           $(this).attr('selected', false);
+        });
+     }
+     else {
+        var match = $el.find('option[value="' + value + '"]');
+        if (match.length) {
+          $form.val(value)
+        }
+        else {
+           $form.append($('<option />', {selected: 'selected', value: value, text: value}));
+        }
+     }
+     $form.trigger('liszt:updated');
   }
 });
