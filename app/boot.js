@@ -20,8 +20,9 @@ window.Backbone = Backbone;
 var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
+window.$ = Backbone.$;
+require('chosen-jquery-browserify');
 
-window.$ = $;
 
 var Router = require('./router');
 var User = require('./models/user');
