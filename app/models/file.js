@@ -85,8 +85,9 @@ module.exports = Backbone.Model.extend({
   parse: function(resp) {
     resp = this.api === 'gitlab' ? this.pickGitlab(resp) : resp;
     var content = resp.content;
-    if (content && resp.encoding === 'base64') {
-      return _.extend({}, resp, this.parseContent(this.decode(content)));
+    if (content) {
+      content = resp.encoding === 'base64' ? this.decode(content) : content;
+      return _.extend({}, resp, this.parseContent(content));
     }
     else {
       return resp;
@@ -129,19 +130,6 @@ module.exports = Backbone.Model.extend({
     });
 
     return res;
-  },
-
-  // TODO figure out if these functions are still necessary -
-  // possible that the API has changed and we don't need 'em.
-  getContent: function(options) {
-    options = options || {};
-    Backbone.Model.prototype.fetch.call(this, _.extend({}, options, {
-      dataType: 'text',
-      headers: {
-        'Accept': 'application/vnd.github.v3.raw'
-      },
-      url: this.get('content_url')
-    }));
   },
 
   getContentSync: function(options) {
