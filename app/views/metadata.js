@@ -1,12 +1,11 @@
 var CodeMirror = require('codemirror');
-var $ = require('jquery');
-var chosen = require('chosen-jquery-browserify');
+var Backbone = require('backbone');
 var _ = require('underscore');
 _.merge = require('deepmerge');
 var jsyaml = require('js-yaml');
-var Backbone = require('backbone');
 var templates = require('../../templates');
 var util = require('../util');
+var $ = Backbone.$;
 
 var forms = {
   Checkbox: require('./meta/checkbox'),
@@ -167,7 +166,8 @@ module.exports = Backbone.View.extend({
     }).bind(this));
 
     // Attach a change event listener
-    this.$el.find('.chzn-select').chosen().change(this.updateModel);
+    var target = this.$el.find('.chzn-select');
+    target.chosen().change(this.updateModel.bind(this));
 
     // Renders the raw metadata textarea form
     this.renderRawEditor();
@@ -210,7 +210,7 @@ module.exports = Backbone.View.extend({
       $parent.empty();
     }
     else {
-      this.$el.find('.form').append(templates.meta.raw());
+      this.$el.find('.form').append(templates.meta.raw({}));
       $parent = this.$el.find('#raw');
     }
 
@@ -223,7 +223,7 @@ module.exports = Backbone.View.extend({
       theme: 'prose-bright'
     });
 
-    this.listenTo(this.codeMirrorInstances.rawEditor, 'blur', (function(codeMirror) {
+    this.codeMirrorInstances.rawEditor.on('blur', (function(codeMirror) {
       try {
         var rawValue = jsyaml.safeLoad(codeMirror.getValue());
       } catch(err) {

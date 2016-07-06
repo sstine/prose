@@ -30,9 +30,7 @@ module.exports = Backbone.View.extend({
       type: 'textarea'
     };
 
-    this.setElement($(this.template(textarea, {
-      variable: 'meta'
-    })));
+    this.setElement($(this.template(textarea)));
 
     return this.$el;
   },
@@ -42,7 +40,7 @@ module.exports = Backbone.View.extend({
   // to update the parent model.
   initCodeMirror: function (onBlur) {
     var id = this.id;
-    var name = this.options.data.name;
+    var name = this.name;
     var textElement = document.getElementById(id);
     var codeMirror = CodeMirror(function(el) {
       textElement.parentNode.replaceChild(el, textElement);

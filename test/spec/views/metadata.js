@@ -1,11 +1,10 @@
+var $ = require('jquery');
+var _ = require('underscore');
+var jsyaml = require('js-yaml');
 var MetadataView = require('../../../app/views/metadata');
 var mockFile = require('../../mocks/models/file');
 var mockFileView = require('../../mocks/views/file');
-
-var templates = require('../../../dist/templates');
-var $ = require('jquery-browserify');
-var _ = require('underscore');
-var jsyaml = require('js-yaml');
+var templates = require('../../../templates');
 
 'use strict';
 
@@ -17,7 +16,7 @@ describe('Metadata editor view', function() {
   beforeEach(function() {
     $('<div />', {
       id: 'meta',
-      html: _.template(templates.metadata)
+      html: templates.metadata()
     }).appendTo($('body'));
 
     model = mockFile();
@@ -426,7 +425,7 @@ describe('Metadata editor view', function() {
         select: 'jon'
       });
       metadataEditor.render();
-      expect($('#meta').find('select').val()).to.equal('jon');
+      expect(metadataEditor.subviews[0].getValue()).to.equal('jon');
     });
 
     it('sets values on multiselect elements', function() {

@@ -1,5 +1,5 @@
 var CodeMirror = require('codemirror');
-var $ = require('jquery-browserify');
+var $ = require('jquery');
 var View = require('backbone').View;
 
 // Useful for us to know what parts of the CodeMirror API we use,
@@ -111,9 +111,9 @@ describe('CodeMirror integration', function () {
         map[prop] = true
       }
     }
-    view.listenTo(cm, 'cursorActivity', setProp('cursor'));
-    view.listenTo(cm, 'change', setProp('change'));
-    view.listenTo(cm, 'focus', setProp('focus'));
+    cm.on('cursorActivity', setProp('cursor'));
+    cm.on('change', setProp('change'));
+    cm.on('focus', setProp('focus'));
     CodeMirror.signal(cm, 'focus');
     cm.setValue('Incredible Hulk');
     expect(map.cursor).ok;
