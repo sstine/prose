@@ -298,7 +298,7 @@ module.exports = {
     }
   },
 
-  getApiFlavor: function (apiUrl) {
+  getApiFlavor: function () {
     return auth.gitlab ? 'gitlab' : 'github';
   },
 
