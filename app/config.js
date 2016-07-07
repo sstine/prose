@@ -9,5 +9,6 @@ module.exports = {
   url: process.env.GATEKEEPER_URL || oauth.gatekeeperUrl,
   username: cookie.get('username'),
   auth: 'oauth',
-  redirect: process.env.REDIRECT_URL || 'http://localhost:3000/'
+  redirect: process.env.REDIRECT_URL || 'http://localhost:3000/',
+  gitlab: true
 };

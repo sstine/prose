@@ -299,8 +299,7 @@ module.exports = {
   },
 
   getApiFlavor: function (apiUrl) {
-    apiUrl = apiUrl || auth.api;
-    return /gitlab/.test(apiUrl) ? 'gitlab' : 'github';
+    return auth.gitlab ? 'gitlab' : 'github';
   },
 
   commitMessage: function (isNew, filename) {
