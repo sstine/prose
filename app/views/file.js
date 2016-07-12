@@ -7,6 +7,9 @@ var patch = require('../../vendor/liquid.patch');
 var Handsontable = require('handsontable');
 var Papa = require('papaparse');
 
+var urlFormat = require('url').format;
+var pathFormat = require('path').format;
+
 var ModalView = require('./modal');
 var marked = require('marked');
 var diff = require('diff');
@@ -289,7 +292,18 @@ module.exports = Backbone.View.extend({
           path = /^\//.test(path) ? path.slice(1) :
             util.extractFilename(this.model.get('path'))[0] + '/' + path;
 
-          var url = auth.site + '/' + this.repo.get('owner').login + '/' + this.repo.get('name') + '/blob/' +  this.branch + '/' + window.escape(path) + '?raw=true';
+          var url = urlFormat({
+            host: auth.host,
+            protocol: 'https',
+            pathname: formatPath(
+              this.repo.get('owner').login,
+              this.repo.get('name'),
+              'blob',
+              this.get('branch'),
+              window.escape(path)
+            ),
+            query: { raw: 'true' }
+          });
 
           content = content.replace(r, '![' + parts[1] + '](' + url + ')');
         }

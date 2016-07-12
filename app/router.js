@@ -372,9 +372,9 @@ module.exports = Backbone.Router.extend({
     if (this.view) this.view.remove();
 
     this.view = new NotificationView({
-      'message': message,
-      'error': error,
-      'options': options
+      message: message,
+      error: error,
+      options: options
     });
 
     this.app.$el.find('#main').html(this.view.render().el);
@@ -391,18 +391,16 @@ module.exports = Backbone.Router.extend({
 
     var options = [
       {
-        'title': t('notification.home'),
-        'link': auth.homepage
+        title: t('notification.home'),
+        link: auth.prose
       }
     ];
 
     if (xhr.status === 404 && !this.user) {
       error = t('notification.404');
       options.unshift({
-        'title': t('login'),
-        'link': auth.site + '/login/oauth/authorize?client_id=' +
-          auth.id + '&scope=' + auth.scope + '&redirect_uri=' +
-          encodeURIComponent(window.location.href)
+        title: t('login'),
+        link: util.oauthUrl(util.getApiFlavor(), auth.scope)
       });
     }
 
