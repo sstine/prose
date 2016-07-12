@@ -52,18 +52,12 @@ user.authenticate({
     if ('withCredentials' in new XMLHttpRequest()) {
 
       // Set OAuth header for all CORS requests
-      var headers;
+      var headers = {};
       if (util.getApiFlavor() === 'gitlab') {
-        headers = {
-          Authorization: "Bearer " + cookie.get('oauth-token')
-        };
+        headers.Authorization = 'Bearer ' + cookie.get('oauth-token')
       }
       else {
-        headers = {
-          Authorization: config.auth === 'oauth' ?
-            'token ' + cookie.get('oauth-token') :
-            'Basic ' + Base64.encode(config.username + ':' + config.password)
-        };
+        headers.Authorization = 'token ' + cookie.get('oauth-token');
       }
       $.ajaxSetup({headers: headers});
 

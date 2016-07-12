@@ -8,7 +8,6 @@ module.exports = {
   id: process.env.OAUTH_CLIENT_ID || oauth.clientId,
   url: process.env.GATEKEEPER_URL || oauth.gatekeeperUrl,
   username: cookie.get('username'),
-  auth: 'oauth',
   redirect: process.env.REDIRECT_URL || 'http://localhost:3000/',
   gitlab: true,
   homepage: process.env.PROSE_URL || '/'
