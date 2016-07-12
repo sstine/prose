@@ -6,7 +6,7 @@ module.exports = {
   apiStatus: process.env.API_STATUS_URL || oauth.status || 'https://status.github.com/api/status.json',
   site: process.env.OAUTH_URL || oauth.site || 'https://github.com',
   id: process.env.OAUTH_CLIENT_ID || oauth.clientId,
-  url: process.env.GATEKEEPER_URL || oauth.gatekeeperUrl,
+  gatekeeper: process.env.GATEKEEPER_URL || oauth.gatekeeperUrl,
   username: cookie.get('username'),
   redirect: process.env.REDIRECT_URL || 'http://localhost:3000/',
   gitlab: true,

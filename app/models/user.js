@@ -30,7 +30,7 @@ module.exports = Backbone.Model.extend({
       match = window.location.href.match(/\?code=([a-z0-9]*)/);
 
       if (match) {
-        Backbone.$.ajax(auth.url + '/authenticate/' + match[1], {
+        Backbone.$.ajax(auth.gatekeeper + '/authenticate/' + match[1], {
           success: function(data) {
             cookie.set('oauth-token', data.token);
 
