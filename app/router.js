@@ -392,7 +392,7 @@ module.exports = Backbone.Router.extend({
     var options = [
       {
         'title': t('notification.home'),
-        'link': '/'
+        'link': auth.homepage
       }
     ];
 

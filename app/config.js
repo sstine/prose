@@ -10,5 +10,6 @@ module.exports = {
   username: cookie.get('username'),
   auth: 'oauth',
   redirect: process.env.REDIRECT_URL || 'http://localhost:3000/',
-  gitlab: true
+  gitlab: true,
+  homepage: process.env.PROSE_URL || '/'
 };
