@@ -1,9 +1,9 @@
-var $ = require('jquery');
-var _ = require('underscore');
 var Backbone = require('backbone');
+var $ = Backbone.$;
 var templates = require('../../templates');
 var auth = require('../config');
 var cookie = require('../cookie');
+var util = require('../util');
 
 // Set scope
 auth.scope = cookie.get('scope') || 'repo';
@@ -19,7 +19,10 @@ module.exports = Backbone.View.extend({
   template: templates.start,
 
   render: function() {
-    this.$el.html(this.template(auth));
+    this.$el.html(this.template({
+      scope: auth.scope,
+      oauth: util.oauthUrl(util.getApiFlavor(), auth.scope)
+    }));
     return this;
   },
 
