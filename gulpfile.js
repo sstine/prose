@@ -127,7 +127,7 @@ gulp.task('build-app', ['templates', 'oauth'], function() {
   var app = browserify({
     noParse: [require.resolve('handsontable/dist/handsontable.full')]
   })
-  .add('./app/boot.js')
+  .add('./app/index.js')
   .bundle()
   .pipe(source('app.js'))
   .pipe(buffer());
@@ -140,6 +140,14 @@ gulp.task('build-app', ['templates', 'oauth'], function() {
 
 // Watch for changes in `app` scripts.
 gulp.task('watch', ['build-app', 'build-tests', 'css'], function() {
+  // Watch any `.js` file under `app` folder.
+  gulp.watch(paths.app, ['build-app']);
+  gulp.watch(paths.templates, ['build-app']);
+  gulp.watch(paths.css, ['css']);
+});
+
+// Watch for changes in `app` scripts, also build tests simultaneously
+gulp.task('watch-tests', ['build-app', 'build-tests', 'css'], function() {
   // Watch any `.js` file under `app` folder.
   gulp.watch(paths.app, ['build-app', 'build-tests']);
   gulp.watch(paths.test, ['build-tests']);

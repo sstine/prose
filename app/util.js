@@ -2,6 +2,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var chrono = require('chrono');
 var auth = require('./config');
+var url = require('url');
 
 module.exports = {
 
@@ -305,5 +306,26 @@ module.exports = {
   commitMessage: function (isNew, filename) {
     return isNew ? t('actions.commits.created', { filename: filename }) :
       t('actions.commits.updated', { filename: filename });
+  },
+
+  oauthUrl: function (api, scope) {
+    var query = {
+      client_id: auth.id
+    }
+    var path;
+    if (api === 'gitlab') {
+      path = 'oauth/authorize';
+      query.redirect_uri = auth.redirect;
+      query.response_type = 'code';
+    } else {
+      path = 'login/oauth/authorize';
+      query.scope = scope;
+    }
+    return url.format({
+      host: auth.host,
+      protocol: 'https',
+      pathname: path,
+      query: query
+    });
   }
 };
