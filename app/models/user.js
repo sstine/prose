@@ -21,31 +21,6 @@ module.exports = Backbone.Model.extend({
     this.api = util.getApiFlavor();
   },
 
-  authenticate: function(options) {
-    var match;
-
-    if (cookie.get('oauth-token')) {
-      if (_.isFunction(options.success)) options.success();
-    } else {
-      match = window.location.href.match(/\?code=([a-z0-9]*)/);
-
-      if (match) {
-        Backbone.$.ajax(auth.gatekeeper + '/authenticate/' + match[1], {
-          success: function(data) {
-            cookie.set('oauth-token', data.token);
-
-            var regex = new RegExp("(?:\\/)?\\?code=" + match[1]);
-            window.location.href = window.location.href.replace(regex, '');
-
-            if (_.isFunction(options.success)) options.success();
-          }
-        });
-      } else {
-        if (_.isFunction(options.error)) options.error();
-      }
-    }
-  },
-
   parse: function (resp) {
     if (this.api === 'gitlab') {
       return _.extend(resp, {
@@ -64,8 +39,9 @@ module.exports = Backbone.Model.extend({
     } else {
       // Return '/user' if authenticated but no user id cookie has been set yet
       // or if this model's id matches authenticated user id
-      return auth.api + ((token && _.isUndefined(id)) || (id && this.get('id') === id) ?
-        '/user' : '/users/' + this.get('login'));
+      var prefix = token && !id || id && this.get('id') === id ? '/user' :
+        '/users/' + this.get('login');
+      return auth.api + prefix;
     }
   }
 });

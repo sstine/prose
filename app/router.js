@@ -356,8 +356,8 @@ module.exports = Backbone.Router.extend({
     if (this.view) this.view.remove();
 
     // If user has authenticated
-    if (this.user) {
-      router.navigate(this.user.get('login'), {
+    if (this.user.get('login')) {
+      this.navigate(this.user.get('login'), {
         trigger: true,
         replace: true
       });
