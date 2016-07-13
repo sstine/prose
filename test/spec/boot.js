@@ -1,6 +1,6 @@
 
 // boot the app
-require('../../app/boot.js');
+require('../../app/index.js');
 
 describe('application bootstrap', function() {
 
@@ -8,8 +8,7 @@ describe('application bootstrap', function() {
   before(function() { server = sinon.fakeServer.create(); });
   after(function() { server.restore(); })
 
-  it('should expose window.app', function() {
-    expect(app).to.be.ok;
+  it('should expose window.router', function() {
     expect(router).to.be.ok;
   });
 });
