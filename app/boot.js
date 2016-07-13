@@ -27,7 +27,6 @@ require('chosen-jquery-browserify');
 var Router = require('./router');
 var User = require('./models/user');
 var NotificationView = require('./views/notification');
-var config = require('./config');
 var cookie = require('./cookie');
 var status = require('./status');
 var util = require('./util');

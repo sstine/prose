@@ -1,13 +1,13 @@
 var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var config = require('../config');
+var auth = require('../config');
 var util = require('../util');
 var templates = require('../../templates');
 var cookie = require('../cookie');
 
 // Set scope
-config.scope = cookie.get('scope') || 'repo';
+auth.scope = cookie.get('scope') || 'repo';
 
 module.exports = Backbone.View.extend({
   template: templates.nav,
@@ -29,7 +29,7 @@ module.exports = Backbone.View.extend({
 
   render: function() {
     this.$el.html(this.template({
-      login: util.oauthUrl(util.getApiFlavor(), config.scope)
+      login: util.oauthUrl(util.getApiFlavor(), auth.scope)
     }));
     this.$save = this.$el.find('.file .save .popup');
     return this;
