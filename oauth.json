@@ -1,6 +1,6 @@
 {
-  api: "https://code.iilab.org/api/v3",
-  host: "code.iilab.org",
-  clientId: "2dfcb4e342cd767315204042bfe3b8a59a9169fb868525e4ed93421ed155537e",
-  gatekeeperUrl: "https://aqueous-shelf-59464.herokuapp.com"
+  api: "https://api.github.com",
+  host: "https://github.com",
+  clientId: "ee3e11b30c2433932f67",
+  gatekeeperUrl: "http://localhost:5000"
 }
